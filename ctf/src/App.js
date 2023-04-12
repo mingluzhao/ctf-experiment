@@ -2,13 +2,19 @@ import React from 'react';
 import GameBoard from './GameBoard';
 
 const App = () => {
-  const numRows = 7; // Number of rows in the game board
-  const numCols = 7; // Number of columns in the game board
+  // Specify the agentCoords with the desired row and col values
+  const agentCoords = {
+    row: 4, // Specify the row index for the agent
+    col: 3, // Specify the col index for the agent
+  };
+  const numRows=5;
+  const numCols=5;
 
   return (
     <div>
-      <h1>Game Board</h1>
-      <GameBoard numRows={numRows} numCols={numCols} /> {/* Render the GameBoard component */}
+      <h1>CTF</h1>
+      {/* Render the GameBoard component and pass the agentCoords prop */}
+      <GameBoard numRows={numRows} numCols={numCols} agentCoords={agentCoords} />
     </div>
   );
 };

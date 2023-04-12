@@ -1,7 +1,10 @@
+// GameBoard.js
+
 import React, { useState } from 'react';
 import SquareParent from './SquareParent';
+import Agent from './Agent'; // Import the Agent component
 
-const GameBoard = ({ numRows, numCols }) => {
+const GameBoard = ({ numRows, numCols, agentCoords }) => { // Accept numRows and numCols as props
   const [squares, setSquares] = useState([]);
 
   // Initialize the squares state with numRows x numCols empty objects
@@ -22,15 +25,34 @@ const GameBoard = ({ numRows, numCols }) => {
     });
   };
 
-  const renderSquares = () => {
-    const squares = [];
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        squares.push(<SquareParent key={`${row}-${col}`} />);
+const renderSquares = () => {
+  const squares = [];
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      // Render the Agent component only in the square that matches the provided coordinates
+      if (row === agentCoords.row && col === agentCoords.col) {
+        squares.push(
+          <div
+            key={`${row}-${col}`}
+            style={{ position: 'relative' }}
+          >
+            <SquareParent />
+            <Agent style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}} />
+          </div>
+        );
+      } else {
+        squares.push(
+          <div
+            key={`${row}-${col}`}
+          >
+            <SquareParent />
+          </div>
+        );
       }
     }
-    return squares;
-  };
+  }
+  return squares;
+};
 
   return (
     <div

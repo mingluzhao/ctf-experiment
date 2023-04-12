@@ -1,0 +1,17 @@
+.agent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    font-weight: bold;
+    color: red;
+    font-size: 40px;
+    box-sizing: border-box;
+    /* Add any additional styles for the Agent component, such as font family, etc. */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
