@@ -1,0 +1,9 @@
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(5, 40px); /* Example: 5 columns with each column width of 40px */
+    grid-template-rows: repeat(5, 40px); /* Example: 5 rows with each row height of 40px */
+    gap: 1px; /* Example: gap between squares of 1px */
+  }
+  
+  /* Add any additional styles for the game board, such as background color, border, etc. */
+  
