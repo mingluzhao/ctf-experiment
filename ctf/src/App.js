@@ -1,7 +1,9 @@
 import React from 'react';
 import GameBoard from './GameBoard';
+import { io } from "socket.io-client"
 
 const App = () => {
+  const socket = io('http://localhost:8080')
   // Specify the agentCoords with the desired row and col values
   const agentCoords = {
     row: 4, // Specify the row index for the agent
