@@ -4,3 +4,15 @@
   background-color: #fff; /* set background color to white */
   border: 1px solid #000; /* set border color to black */
 }
+
+.obstacle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  background-color: #808080; /* set background color to grey */
+  z-index: 10; /* set a higher z-index to make sure the obstacle renders above the grid */
+}

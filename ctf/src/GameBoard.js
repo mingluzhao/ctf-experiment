@@ -1,58 +1,51 @@
-// GameBoard.js
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
-import Agent from './Agent'; // Import the Agent component
+import Agent from './Agent';
 
-const GameBoard = ({ numRows, numCols, agentCoords }) => { // Accept numRows and numCols as props
+const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
   const [squares, setSquares] = useState([]);
 
   // Initialize the squares state with numRows x numCols empty objects
-  useState(() => {
+  useEffect(() => {
     const initialSquares = Array.from({ length: numRows }, () =>
       Array.from({ length: numCols }, () => ({}))
     );
     setSquares(initialSquares);
   }, [numRows, numCols]);
 
-  // Callback function to update the state of a square
-  const updateSquareState = (rowIndex, colIndex, newState) => {
-    setSquares(prevSquares => {
-      const newSquares = [...prevSquares];
-      newSquares[rowIndex] = [...prevSquares[rowIndex]];
-      newSquares[rowIndex][colIndex] = newState;
-      return newSquares;
-    });
-  };
-
-const renderSquares = () => {
-  const squares = [];
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      // Render the Agent component only in the square that matches the provided coordinates
-      if (row === agentCoords.row && col === agentCoords.col) {
-        squares.push(
-          <div
-            key={`${row}-${col}`}
-            style={{ position: 'relative' }}
-          >
-            <SquareParent />
-            <Agent style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}} />
-          </div>
-        );
-      } else {
-        squares.push(
-          <div
-            key={`${row}-${col}`}
-          >
-            <SquareParent />
-          </div>
-        );
+  const renderSquares = () => {
+    const squares = [];
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+        // Render the Agent component only in the square that matches the provided coordinates
+        if (row === agentCoords.row && col === agentCoords.col) {
+          squares.push(
+            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
+              <SquareParent obstacle={false} flag={false} beam={false} />
+              <Agent />
+            </div>
+          );
+        }
+        // Render the Obstacle component for any square that matches the provided obstacle coordinates
+        else if (obstacleCoords.some(coord => coord.row === row && coord.col === col)) {
+          squares.push(
+            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
+              {/* Pass obstacle prop as true to SquareParent component */}
+              <SquareParent obstacle={true} flag={false} beam={false} />
+              <div className="obstacle"></div>
+            </div>
+          );
+        } else {
+          squares.push(
+            <div key={`${row}-${col}`}>
+              <SquareParent />
+            </div>
+          );
+        }
       }
     }
-  }
-  return squares;
-};
+    return squares;
+  };  
 
   return (
     <div
