@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
-import Agent from './Agent';
 
 const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
   const [squares, setSquares] = useState([]);
@@ -21,8 +20,7 @@ const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
         if (row === agentCoords.row && col === agentCoords.col) {
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
-              <SquareParent obstacle={false} flag={false} beam={false} />
-              <Agent />
+              <SquareParent agent={true} obstacle={false} flag={false} beam={false} />
             </div>
           );
         }
@@ -31,7 +29,7 @@ const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass obstacle prop as true to SquareParent component */}
-              <SquareParent obstacle={true} flag={false} beam={false} />
+              <SquareParent agent={false} obstacle={true} flag={false} beam={false} />
               <div className="obstacle"></div>
             </div>
           );
