@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import GameBoard from './GameBoard';
-//import { io } from "socket.io-client"
+import { io } from "socket.io-client"
+
+const socket = io('http://localhost:8080')
+socket.on('connect', () => {
+  console.log(socket.id);
+});
+
+socket.emit('state-to-server', {a1: (0,0)});
+
+socket.on('state-to-client', (obj) => {
+  console.log("client recieved message")
+  console.log(obj);
+})
 
 const App = () => {
-  //const socket = io('http://localhost:8080')
 
   // Set initial agent and obstacle coordinates
   const [agentCoords, setAgentCoords] = useState({ row: 9, col: 9 });
