@@ -5,11 +5,9 @@ import GameBoard from './GameBoard';
 const App = () => {
   //const socket = io('http://localhost:8080')
 
-  const numRows=5;
-  const numCols=5;
   // Set initial agent and obstacle coordinates
-  const [agentCoords, setAgentCoords] = useState({ row: 2, col: 0 });
-  const [obstacleCoords, setObstacleCoords] = useState([{ row: 0, col: 1 }, { row: 2, col: 2 }]);
+  const [agentCoords, setAgentCoords] = useState({ row: 9, col: 9 });
+  const [obstacleCoords, setObstacleCoords] = useState([{ row: 4, col: 5 }, { row: 2, col: 2 }]);
 
   return (
     <div>

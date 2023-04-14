@@ -14,9 +14,9 @@ grid_size = 10
 class Game: # each state stores the positions, reward, action, and terminal status
     def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
         self.state_dict = {
-            "a1": (random.randint(0, 9), random.randint(0, 9)),
-            "o1": (random.randint(0, 9), random.randint(0, 9)),
-            "f1": (random.randint(0, 9), random.randint(0, 9))
+            "a1": [random.randint(0, 9), random.randint(0, 9)],
+            "o1": [random.randint(0, 9), random.randint(0, 9)],
+            "f1": [random.randint(0, 9), random.randint(0, 9)]
         }
         self.reward = { # default reward is 0
             'a1': 0
@@ -42,14 +42,9 @@ class Game: # each state stores the positions, reward, action, and terminal stat
     
     def transition(state, agent_actions):
         print(state)
-        print(type(state))
-        new_state = copy.deepcopy(state)
-        new_state = list(new_state)
-        #update all the agent coordinates in the state
-        new_agent_positions = []
         for i in range(0, len(agent_actions)):
-            new_state.state_dict["a1"][i] += agent_actions[i]
-        return new_state
+            state.state_dict["a1"][i] += agent_actions[i]
+        return state
     
     def reward(state, action):
         # how is reward calculated? not sure what -action_cost means
