@@ -1,4 +1,5 @@
 import random 
+import copy
 import json 
 
 grid_size = 10
@@ -11,11 +12,11 @@ grid_size = 10
 # intialization should take care of the random state section 
 
 class Game: # each state stores the positions, reward, action, and terminal status
-    def __init__(self, agent_positions, obstacle_positions, flag_position, action_cost, goal_reward):
+    def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
         self.state_dict = {
-            "a1": agent_positions,
-            "o1": obstacle_positions,
-            "f1": flag_position
+            "a1": (random.randint(0, 9), random.randint(0, 9)),
+            "o1": (random.randint(0, 9), random.randint(0, 9)),
+            "f1": (random.randint(0, 9), random.randint(0, 9))
         }
         self.reward = { # default reward is 0
             'a1': 0
@@ -36,16 +37,18 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         agent_actions = []
         possible_moves = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)] 
         # agent_position = state.state_dict['a1'] # take coord of agent from state dictionary
-
-        # return a random action from the list of valid actions
-        return random.choice(possible_moves)
-
+        agent_actions = random.choice(possible_moves)
+        return agent_actions
     
     def transition(state, agent_actions):
-        new_state = state.copy()
+        print(state)
+        print(type(state))
+        new_state = copy.deepcopy(state)
+        new_state = list(new_state)
         #update all the agent coordinates in the state
-
-            
+        new_agent_positions = []
+        for i in range(0, len(agent_actions)):
+            new_state.state_dict["a1"][i] += agent_actions[i]
         return new_state
     
     def reward(state, action):
@@ -59,12 +62,31 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         terminal = False
         for agent_pos in state.state_dict["a1"]:
             if agent_pos == state.state_dict["f1"]:
-                terminal = true
+                terminal = True
         return terminal 
     # get to the flag, getting a winning bonus -
 
 
 # generates a random initial state for the envrioment 
-state = Game((random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),
-              (random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),
-              (random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)))
+#state = Game((random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),(random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),(random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)))
+
+def generate_trajectory(num_steps):
+    game = Game(1, 1, 1, 1, 10)
+    trajectory = []
+    for i in range(num_steps):
+        state = game.state_dict.copy()
+        action = game.policy_random()
+        #reward = game.reward(action)
+        print(type(action))
+        terminal = game.is_terminal()
+        trajectory.append((state, action, 0, terminal))
+        
+        if terminal:
+            break
+        
+        game = game.transition(action)
+    
+    return trajectory
+
+temp = generate_trajectory(2)
+print(temp)
