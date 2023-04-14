@@ -1,0 +1,1 @@
+run npm install in both the ctf and server directories

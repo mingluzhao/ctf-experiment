@@ -1,34 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GameBoard from './GameBoard';
 import { io } from "socket.io-client"
 
-const socket = io('http://localhost:8080')
-socket.on('connect', () => {
-  console.log(socket.id);
-});
-
-socket.emit('state-to-server', {a1: (0,0)});
-
-socket.on('state-to-client', (obj) => {
-  console.log("client recieved message")
-  console.log(obj);
-})
+const socket = io('http://localhost:8080');
 
 const App = () => {
 
-  // Set initial agent and obstacle coordinates
-  const [agentCoords, setAgentCoords] = useState({ row: 9, col: 9 });
-  const [obstacleCoords, setObstacleCoords] = useState([{ row: 4, col: 5 }, { row: 2, col: 2 }]);
+  const [agentCoords, setAgentCoords] = useState(null);
+  const [obstacleCoords, setObstacleCoords] = useState(null);
 
+  useEffect(() => {
+    // Use socket.emit to send a request to the server
+    socket.emit('state-to-server');
+
+    // Listen for a message from the server
+    socket.on('state-to-client', (jsonMessage) => {
+      // Parse the JSON message
+      const message = JSON.parse(jsonMessage);
+      console.log('Received message:', message);
+
+      // Access the agent and obstacles data from the parsed message
+      const agent = message[0].a1;
+      const obstacles = message[0].o1;
+
+      // Convert obstacleCoords object to an array of objects with row and col properties
+      const obstacleCoordsArray = [{ row: obstacles.row, col: obstacles.col }];
+
+      // Update the agent and obstacle coordinates in the state
+      setAgentCoords(agent);
+      setObstacleCoords(obstacleCoordsArray);
+    });
+
+    // Clean up the socket event listener when component unmounts
+    return () => {
+      socket.off('state-to-client');
+    }
+  }, []);
+  console.log(obstacleCoords);
   return (
     <div>
-      {/* Render GameBoard component with agentCoords and obstacleCoords */}
-      <GameBoard
-        numRows={10} // Set the number of rows for the game board
-        numCols={10} // Set the number of columns for the game board
-        agentCoords={agentCoords} // Pass the agent coordinates to GameBoard
-        obstacleCoords={obstacleCoords} // Pass the obstacle coordinates to GameBoard
-      />
+      {/* Render GameBoard component only if agentCoords and obstacleCoords are not null */}
+      {agentCoords && obstacleCoords &&
+        <GameBoard
+          numRows={10} // Set the number of rows for the game board
+          numCols={10} // Set the number of columns for the game board
+          agentCoords={agentCoords} // Pass the agent coordinates to GameBoard
+          obstacleCoords={obstacleCoords} // Pass the obstacle coordinates to GameBoard
+        />
+      }
     </div>
   );
 };
