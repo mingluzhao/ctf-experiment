@@ -1,9 +1,7 @@
 import random 
-import copy
 import json 
 
 grid_size = 10
-
 # OUTPUT : trajectory - json file - a numpy array as the output 
 # have a function that changes the numpy array to a json file 
 
@@ -12,17 +10,14 @@ grid_size = 10
 # intialization should take care of the random state section 
 
 class Game: # each state stores the positions, reward, action, and terminal status
-    def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
+    
+    # def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
+
+    def __init__(self, action_cost, goal_reward):
         self.state_dict = {
             "a1": [random.randint(0, 9), random.randint(0, 9)],
             "o1": [random.randint(0, 9), random.randint(0, 9)],
             "f1": [random.randint(0, 9), random.randint(0, 9)]
-        }
-        self.reward = { # default reward is 0
-            'a1': 0
-        }
-        self.action = { # default action is not moving
-            'a1': 0
         }
         self.action_cost = action_cost 
         self.goal_reward = goal_reward
@@ -32,56 +27,105 @@ class Game: # each state stores the positions, reward, action, and terminal stat
     # just be inputing the state and return the action 
     # policy random , random choice 
     # returns the ones thats chosen 
+    def position_map(self):
+        map = {}
+        agent_position = {
+            "row": self.state_dict["a1"][0],
+            "col": self.state_dict["a1"][1]
+        }
 
-    def policy_random(state): 
-        agent_actions = []
+        obstacle_position = {
+            "row": self.state_dict["o1"][0],
+            "col": self.state_dict["o1"][1]
+        }
+
+        flag_position = {
+            "row": self.state_dict["f1"][0],
+            "col": self.state_dict["f1"][1]
+        } 
+
+        map["a1"] = agent_position
+        map["o1"] = obstacle_position
+        map["f1"] = flag_position
+
+        return map
+
+    def policy_random(self): 
         possible_moves = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)] 
-        # agent_position = state.state_dict['a1'] # take coord of agent from state dictionary
+        return random.choice(possible_moves)
+
+        '''
+        for multiple agents 
+        
+        agent_actions = []
         agent_actions = random.choice(possible_moves)
         return agent_actions
+        '''
     
-    def transition(state, agent_actions):
-        print(state)
+    def transition(self, action):
+        newstate = Game(self.action_cost, self.goal_reward)
+        newstate.state_dict["a1"][0] = self.state_dict["a1"][0] + action[0]
+        newstate.state_dict["a1"][1] = self.state_dict["a1"][1] + action[1]
+        return newstate
+
+        '''
+        for multiple agents
+        
         for i in range(0, len(agent_actions)):
             state.state_dict["a1"][i] += agent_actions[i]
-        return state
+        '''
     
-    def reward(state, action):
-        # how is reward calculated? not sure what -action_cost means
+    def reward(self, action):
         # action cost should be dependent on what action you take 
         # one exception , when agents gets to goal -> define where the flag is 
-        return 0
+        if(self.state_dict["a1"] == self.state_dict["f1"]): #if agent reaches flag, return reward for reaching goal
+            return self.goal_reward
+        return self.action_cost #otherwise, for now return default action cost
     
     # checking weather the agent has captured the flag or gotten to the goal 
-    def is_terminal(state): 
-        terminal = False
+    def is_terminal(self): 
+        if(self.state_dict["a1"] == self.state_dict["f1"]):
+            return True
+        return False 
+
+        '''
+        for multiple agents:
+        
         for agent_pos in state.state_dict["a1"]:
             if agent_pos == state.state_dict["f1"]:
                 terminal = True
-        return terminal 
+        '''
     # get to the flag, getting a winning bonus -
 
 
 # generates a random initial state for the envrioment 
 #state = Game((random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),(random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),(random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)))
 
-def generate_trajectory(num_steps):
-    game = Game(1, 1, 1, 1, 10)
-    trajectory = []
-    for i in range(num_steps):
-        state = game.state_dict.copy()
-        action = game.policy_random()
-        #reward = game.reward(action)
-        print(type(action))
-        terminal = game.is_terminal()
-        trajectory.append((state, action, 0, terminal))
-        
-        if terminal:
-            break
-        
-        game = game.transition(action)
-    
-    return trajectory
+def generate_trajectorys(max_episode, max_time_step):
+    all_episode_trajectory = []
+    for episode in range(max_episode):
+        state = Game(-1, 10)  
+        episode_trajectory = []
+        for i in range(max_time_step):
+            action = state.policy_random()
+            next_state = state.transition(action)
+            reward = state.reward(action)
+            terminal = state.is_terminal()
 
-temp = generate_trajectory(2)
+            curr_state = (state.position_map(), action, reward, terminal)
+            episode_trajectory.append(curr_state)
+
+            state = next_state
+            if terminal:
+                break    
+        all_episode_trajectory.append(episode_trajectory)
+    return all_episode_trajectory
+
+temp = generate_trajectorys(1, 3)
 print(temp)
+
+json_string = json.dumps(temp)
+
+with open('all_episode_trajectories.json', 'w') as f:
+    f.write(json_string)
+
