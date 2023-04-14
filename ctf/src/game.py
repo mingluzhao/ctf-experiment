@@ -2,12 +2,6 @@ import random
 import json 
 
 grid_size = 10
-# OUTPUT : trajectory - json file - a numpy array as the output 
-# have a function that changes the numpy array to a json file 
-
-# class should be called game 
-# for the initialization you have the state 
-# intialization should take care of the random state section 
 
 class Game: # each state stores the positions, reward, action, and terminal status
     
@@ -23,10 +17,6 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         self.goal_reward = goal_reward
         self.terminal = False
         
-
-    # just be inputing the state and return the action 
-    # policy random , random choice 
-    # returns the ones thats chosen 
     def position_map(self):
         map = {}
         agent_position = {
@@ -76,13 +66,10 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         '''
     
     def reward(self, action):
-        # action cost should be dependent on what action you take 
-        # one exception , when agents gets to goal -> define where the flag is 
         if(self.state_dict["a1"] == self.state_dict["f1"]): #if agent reaches flag, return reward for reaching goal
             return self.goal_reward
         return self.action_cost #otherwise, for now return default action cost
     
-    # checking weather the agent has captured the flag or gotten to the goal 
     def is_terminal(self): 
         if(self.state_dict["a1"] == self.state_dict["f1"]):
             return True
@@ -95,12 +82,7 @@ class Game: # each state stores the positions, reward, action, and terminal stat
             if agent_pos == state.state_dict["f1"]:
                 terminal = True
         '''
-    # get to the flag, getting a winning bonus -
-
-
-# generates a random initial state for the envrioment 
-#state = Game((random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),(random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)),(random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)))
-
+        
 def generate_trajectorys(max_episode, max_time_step):
     all_episode_trajectory = []
     for episode in range(max_episode):
