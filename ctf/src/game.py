@@ -5,6 +5,7 @@ grid_size = 10
 
 # records the state of the game at a given moment
 class Game: # each state stores the positions, reward, action, and terminal status
+    # THIS IS ONE GAME THAT HAS DIFFERENT PROPERTIES THAT CAN BE UPDATED LATER ON
     
     # def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
 
@@ -45,21 +46,14 @@ class Game: # each state stores the positions, reward, action, and terminal stat
 
         return map
 
-    # choose a random move from the possible moves (up, down, left, right, stay)
-    def policy_random(self):
-        possible_moves = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)] 
-        return random.choice(possible_moves)
-
-        '''
-        for multiple agents 
-        
-        agent_actions = []
-        agent_actions = random.choice(possible_moves)
-        return agent_actions
-        '''
-
     # create a new state based on the current state and the chosen action
     def transition(self, action): 
+        # take out the current state and take out the transition -> 
+        # update the current state and directly change the game object 
+        # input: currentstate, action 
+        # keep track of the state that you currently having
+        # obstacle detection will be in here later on - "physics part"
+        
         newstate = Game(self.action_cost, self.goal_reward)
         newstate.state_dict["a1"][0] = self.state_dict["a1"][0] + action[0]
         newstate.state_dict["a1"][1] = self.state_dict["a1"][1] + action[1]
@@ -89,7 +83,20 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         for agent_pos in state.state_dict["a1"]:
             if agent_pos == state.state_dict["f1"]:
                 terminal = True
+
         '''
+
+
+# choose a random move from the possible moves (up, down, left, right, stay)
+def policy_random(state):
+    possible_moves = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)] 
+    return random.choice(possible_moves)
+    '''
+    for multiple agents         
+    agent_actions = []
+    agent_actions = random.choice(possible_moves)
+    return agent_actions
+    '''
 
 # Store data for multiple runthroughs of the game 
 def generate_trajectory(max_episode, max_time_step):                   
@@ -101,8 +108,9 @@ def generate_trajectory(max_episode, max_time_step):
         episode_trajectory = []                                        # Create an empty list to store the trajectory for the current episode
 
         # Loop through the specified number of time steps
-        for i in range(max_time_step):                                 
-            action = state.policy_random()                             # Choose a random action according to a random policy
+        for i in range(max_time_step):
+            ###### policy random should be a class in the future ...                                  
+            action = policy_random(state)                             # Choose a random action according to a random policy
             next_state = state.transition(action)                      # Get the next state by applying the chosen action to the current state
             reward = state.reward(action)                              # Get the reward for the current state and action
             terminal = state.is_terminal()                             # Check if the current state is terminal 
@@ -110,7 +118,7 @@ def generate_trajectory(max_episode, max_time_step):
             curr_state = (state.position_map(), action, reward, terminal)
             episode_trajectory.append(curr_state)
 
-            state = next_state
+            state = next_state 
             if terminal:
                 break    
         all_episode_trajectory.append(episode_trajectory)
