@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
+import Agent from './Agent';
+import agentImg from './agent.png';
 
 const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
   const [squares, setSquares] = useState([]);
@@ -21,6 +23,7 @@ const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               <SquareParent agent={true} obstacle={false} flag={false} beam={false} />
+              <Agent src={agentImg} />
             </div>
           );
         }

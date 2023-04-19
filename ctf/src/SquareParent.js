@@ -16,7 +16,7 @@ const SquareParent = ({ agent, obstacle, flag, beam }) => {
       )}
       {/* Render additional elements or components based on the state of squareStates */}
       {squareStates.agent && (
-        <div className="agent">A</div>
+        <div className="agent"></div>
       )}
     </div>
   );
