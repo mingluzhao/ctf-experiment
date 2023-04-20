@@ -46,18 +46,19 @@ class Game: # each state stores the positions, reward, action, and terminal stat
 
         return map
 
-    # create a new state based on the current state and the chosen action
+    
     def transition(self, action): 
         # take out the current state and take out the transition -> 
         # update the current state and directly change the game object 
         # input: currentstate, action 
         # keep track of the state that you currently having
         # obstacle detection will be in here later on - "physics part"
-        
-        newstate = Game(self.action_cost, self.goal_reward)
-        newstate.state_dict["a1"][0] = self.state_dict["a1"][0] + action[0]
-        newstate.state_dict["a1"][1] = self.state_dict["a1"][1] + action[1]
-        return newstate
+
+        #make this not create a new state instead just update self.state_dict directly
+        # dont return anything
+        self.state_dict["a1"][0] += action[0]
+        self.state_dict["a1"][1] += action[1]
+
 
         '''
         for multiple agents
@@ -111,14 +112,13 @@ def generate_trajectory(max_episode, max_time_step):
         for i in range(max_time_step):
             ###### policy random should be a class in the future ...                                  
             action = policy_random(state)                             # Choose a random action according to a random policy
-            next_state = state.transition(action)                      # Get the next state by applying the chosen action to the current state
             reward = state.reward(action)                              # Get the reward for the current state and action
             terminal = state.is_terminal()                             # Check if the current state is terminal 
-
             curr_state = (state.position_map(), action, reward, terminal)
+            state.transition(action)                      # Get the next state by applying the chosen action to the current state
+
             episode_trajectory.append(curr_state)
 
-            state = next_state 
             if terminal:
                 break    
         all_episode_trajectory.append(episode_trajectory)
