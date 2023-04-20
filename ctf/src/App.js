@@ -11,10 +11,10 @@ const App = () => {
 
   useEffect(() => {
     // Use socket.emit to send a request to the server
-    socket.emit('state-to-server');
+    socket.emit('send-state-to-server');
 
     // Listen for a message from the server
-    socket.on('state-to-client', (jsonMessage) => {
+    socket.on('send-state-to-client', (jsonMessage) => {
       // Parse the JSON message
       const message = JSON.parse(jsonMessage);
       console.log('Received message:', message);
@@ -33,7 +33,7 @@ const App = () => {
 
     // Clean up the socket event listener when component unmounts
     return () => {
-      socket.off('state-to-client');
+      socket.off('send-state-to-client');
     }
   }, []);
   console.log(obstacleCoords);
