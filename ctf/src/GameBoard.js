@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
-import Agent from './Agent';
-import agentImg from './agent.png';
 
-const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
+const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords }) => {
   const [squares, setSquares] = useState([]);
 
   // Initialize the squares state with numRows x numCols empty objects
@@ -18,17 +16,8 @@ const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
     const squares = [];
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        // Render the Agent component only in the square that matches the provided coordinates
-        if (row === agentCoords.row && col === agentCoords.col) {
-          squares.push(
-            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
-              <SquareParent agent={true} obstacle={false} flag={false} beam={false} />
-              <Agent src={agentImg} />
-            </div>
-          );
-        }
         // Render the Obstacle component for any square that matches the provided obstacle coordinates
-        else if (obstacleCoords.some(coord => coord.row === row && coord.col === col)) {
+        if (obstacleCoords.some(coord => coord.row === row && coord.col === col)) {
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass obstacle prop as true to SquareParent component */}
@@ -36,10 +25,18 @@ const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
               <div className="obstacle"></div>
             </div>
           );
+        // Render the Agent component if agentCoords are not null
+        } else if (agentCoords !== null && agentCoords.row === row && agentCoords.col === col) {
+          squares.push(
+            <div key={`${row}-${col}-agent`} style={{ position: 'relative' }}>
+              {/* Pass agent prop as true to SquareParent component */}
+              <SquareParent agent={true} obstacle={false} flag={false} beam={false} />
+            </div>
+          );
         } else {
           squares.push(
             <div key={`${row}-${col}`}>
-              <SquareParent />
+              <SquareParent agent={false} obstacle={false} flag={false} beam={false}/>
             </div>
           );
         }
@@ -54,7 +51,7 @@ const GameBoard = ({ numRows, numCols, agentCoords, obstacleCoords }) => {
         display: 'grid',
         gridTemplateColumns: `repeat(${numCols}, 40px)`,
         gridTemplateRows: `repeat(${numRows}, 40px)`,
-        gap: '1px',
+        gap: '0px', // Change the gap to zero pixels
         // Add any additional styles for the game board, such as background color, border, etc.
       }}
     >

@@ -16,19 +16,3 @@
   background-color: #808080; /* set background color to grey */
   z-index: 10; /* set a higher z-index to make sure the obstacle renders above the grid */
 }
-
-.agent {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-  font-weight: bold;
-  color: red;
-  font-size: 40px;
-  box-sizing: border-box;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}

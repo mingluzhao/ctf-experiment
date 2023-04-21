@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import GameBoard from './GameBoard';
+import Agent from './Agent';
 import { io } from "socket.io-client"
+import agentImg from "./agent.png"
 
 const socket = io('http://localhost:8080');
 
@@ -36,18 +38,29 @@ const App = () => {
       socket.off('send-state-to-client');
     }
   }, []);
-  console.log(obstacleCoords);
+
   return (
     <div>
       {/* Render GameBoard component only if agentCoords and obstacleCoords are not null */}
       {agentCoords && obstacleCoords &&
         <GameBoard
-          numRows={10} // Set the number of rows for the game board
-          numCols={10} // Set the number of columns for the game board
-          agentCoords={agentCoords} // Pass the agent coordinates to GameBoard
+          numRows={20} // Set the number of rows for the game board
+          numCols={20} // Set the number of columns for the game board
           obstacleCoords={obstacleCoords} // Pass the obstacle coordinates to GameBoard
+          agentCoords={agentCoords} //Pass the obstacle coordinates to GameBoard
         />
       }
+      {/* Render Agent component only if agentCoords is not null */}
+      {agentCoords &&
+        <Agent
+          src={agentImg}
+          position={{
+            top: `${40 * agentCoords.row + 30}px`,
+            left: `${40 * agentCoords.col + 30}px`
+          }}
+        />
+      }
+      {console.log(agentCoords)}
     </div>
   );
 };
