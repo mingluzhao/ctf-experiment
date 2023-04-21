@@ -187,7 +187,7 @@ def generate_trajectory(max_episode, max_time_step):
     return all_episode_trajectory
 
 # array that stores the result of generate_trajectory
-temp = generate_trajectory(1, 3)
+temp = generate_trajectory(1, 1)
 print(temp)
 
 json_string = json.dumps(temp)

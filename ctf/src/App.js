@@ -8,8 +8,8 @@ const socket = io('http://localhost:8080');
 
 const App = () => {
 
-  const [agentCoords, setAgentCoords] = useState(null);
-  const [obstacleCoords, setObstacleCoords] = useState(null);
+  const [agents, setAgents] = useState([]);
+  const [obstacles, setObstacles] = useState([]);
 
   useEffect(() => {
     // Use socket.emit to send a request to the server
@@ -22,15 +22,15 @@ const App = () => {
       console.log('Received message:', message);
 
       // Access the agent and obstacles data from the parsed message
-      const agent = message[0].a1;
-      const obstacles = message[0].o1;
+      const agents = message[0].agent;
+      const obstacles = message[0].obstacle;
 
-      // Convert obstacleCoords object to an array of objects with row and col properties
-      const obstacleCoordsArray = [{ row: obstacles.row, col: obstacles.col }];
+      // Convert obstacle array to an array of objects with row and col properties
+      const obstacleCoords = obstacles.map(o => ({ row: o.row, col: o.col }));
 
-      // Update the agent and obstacle coordinates in the state
-      setAgentCoords(agent);
-      setObstacleCoords(obstacleCoordsArray);
+      // Update the agents and obstacles state
+      setAgents(agents);
+      setObstacles(obstacleCoords);
     });
 
     // Clean up the socket event listener when component unmounts
@@ -41,26 +41,28 @@ const App = () => {
 
   return (
     <div>
-      {/* Render GameBoard component only if agentCoords and obstacleCoords are not null */}
-      {agentCoords && obstacleCoords &&
+      {console.log(agents)}
+      {console.log(obstacles)}
+      {/* Render GameBoard component only if agents and obstacles are not empty */}
+      {agents.length > 0 && obstacles.length > 0 &&
         <GameBoard
-          numRows={20} // Set the number of rows for the game board
-          numCols={20} // Set the number of columns for the game board
-          obstacleCoords={obstacleCoords} // Pass the obstacle coordinates to GameBoard
-          agentCoords={agentCoords} //Pass the obstacle coordinates to GameBoard
+          numRows={10} // Set the number of rows for the game board
+          numCols={10} // Set the number of columns for the game board
+          obstacleCoords={obstacles} // Pass the obstacle coordinates to GameBoard
+          agentCoords={agents}
         />
       }
-      {/* Render Agent component only if agentCoords is not null */}
-      {agentCoords &&
+      {/* Render Agent components for each agent in agents */}
+      {agents.map(agent => (
         <Agent
+          key={agent.id} // Assign a unique key to each Agent component
           src={agentImg}
           position={{
-            top: `${40 * agentCoords.row + 30}px`,
-            left: `${40 * agentCoords.col + 30}px`
+            top: `${40 * agent.row + 30}px`,
+            left: `${40 * agent.col + 30}px`
           }}
         />
-      }
-      {console.log(agentCoords)}
+      ))}
     </div>
   );
 };

@@ -25,8 +25,8 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords }) => {
               <div className="obstacle"></div>
             </div>
           );
-        // Render the Agent component if agentCoords are not null
-        } else if (agentCoords !== null && agentCoords.row === row && agentCoords.col === col) {
+        // Render the Agent component for any square that matches the provided agent coordinates
+        } else if (agentCoords.some(coord => coord.row === row && coord.col === col)) {
           squares.push(
             <div key={`${row}-${col}-agent`} style={{ position: 'relative' }}>
               {/* Pass agent prop as true to SquareParent component */}

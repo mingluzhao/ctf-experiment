@@ -1,1 +1,1 @@
-[{"a1": {"row": 5, "col": 5}, "o1": {"row": 8, "col": 6}, "f1": {"row": 3, "col": 5}}, [0, 1], -1, false]
+[{"agent": [{"id": "a1", "row": 0, "col": 0, "direction": "up"}, {"id": "a2", "row": 6, "col": 3, "direction": "up"}], "obstacle": [{"id": "o1", "row": 4, "col": 5}, {"id": "o2", "row": 6, "col": 2}], "flag": [{"id": "f1", "row": 9, "col": 9}, {"id": "f2", "row": 6, "col": 6}]}, [[0, 1], [0, -1]], [-2, -2], false]
