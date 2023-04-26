@@ -1,1 +1,11 @@
-[{"agent": [{"id": "a1", "row": 0, "col": 0, "direction": "up"}, {"id": "a2", "row": 6, "col": 3, "direction": "up"}], "obstacle": [{"id": "o1", "row": 4, "col": 5}, {"id": "o2", "row": 6, "col": 2}], "flag": [{"id": "f1", "row": 9, "col": 9}, {"id": "f2", "row": 6, "col": 6}]}, [[0, 1], [0, -1]], [-2, -2], false]
+[[{"agent": [{"id": "a1", "row": 3, "col": 9, "direction": "up"}, {"id": "a2", "row": 7, "col": 8, "direction": "up"}], 
+"obstacle": [{"id": "o1", "row": 8, "col": 6}, {"id": "o2", "row": 7, "col": 3}],
+"flag": [{"id": "f1", "row": 6, "col": 5}, {"id": "f2", "row": 1, "col": 8}]}, [[-1, 0], [0, 1]], [-2, -2], false], 
+
+[{"agent": [{"id": "a1", "row": 3, "col": 8, "direction": "up"}, {"id": "a2", "row": 7, "col": 8, "direction": "up"}],
+ "obstacle": [{"id": "o1", "row": 8, "col": 6}, {"id": "o2", "row": 7, "col": 3}], "flag": [{"id": "f1", "row": 6, "col": 5},
+  {"id": "f2", "row": 1, "col": 8}]}, [[0, 1], [0, -1]], [-2, -2], false],
+  
+  [{"agent": [{"id": "a1", "row": 3, "col": 7, "direction": "up"}, {"id": "a2", "row": 7, "col": 8, "direction": "up"}],
+    "obstacle": [{"id": "o1", "row": 8, "col": 6}, {"id": "o2", "row": 7, "col": 3}], "flag": [{"id": "f1", "row": 6, "col": 5}, 
+    {"id": "f2", "row": 1, "col": 8}]}, [[0, 0], [0, 1]], [-2, -2], false]]
