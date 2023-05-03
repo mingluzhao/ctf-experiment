@@ -1,11 +1,10 @@
 import random 
 import json 
 
-grid_size = 10 
 
 class Game: # each state stores the positions, reward, action, and terminal status
     # THIS IS ONE GAME THAT HAS DIFFERENT PROPERTIES THAT CAN BE UPDATED LATER ON
-    
+    grid_size = 10 
 
     # def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
 
@@ -56,52 +55,34 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         self.goal_reward = goal_reward # reward for reaching the goal (constant)
         self.terminal = False          # if the game has ended or not
 
-    
-    # converts state dict into parsable format
-    '''
-    def position_map(self):    
-         # format the positions of the agent, obstacle, and flag into a dictionary
-        map = {}  
 
-        for agent in self.state_dict["agent"]:
-            map[agent["id"]] =                     
-        agent_position = {
-            
-            "row": self.state_dict["agent"][0]["pos"][0],
-            "col": self.state_dict["agent"][1]["pos"][1]
-        }
-
-        obstacle_position = {
-            "row": self.state_dict["obstacle"][0]["pos"][0],
-            "col": self.state_dict["obstacle"][1]["pos"][1]
-        }
-
-        flag_position = {
-            "row": self.state_dict["flag"][0]["pos"][0], 
-            "col": self.state_dict["flag"][1]["pos"][1]
-        } 
-
-        # add the positions to the map dictionary
-        map["agent"]    = agent_position
-        map["obstacle"] = obstacle_position
-        map["flag"]     = flag_position
-
-        return map 
-    '''
-    # make the rule agents cannot run into obstacles 
-    # when you have multiple agents, check multiple times 
-
-    def transition(self, actions): 
-        # take out the current state and take out the transition -> 
+     # take out the current state and take out the transition -> 
         # update the current state and directly change the game object 
-        # input: currentstate, action 
         # keep track of the state that you currently having
         # obstacle detection will be in here later on - "physics part"
+
+    def transition(self, actions): 
         for i in range(0, len(self.state_dict["agent"])):
+            prev_row = self.state_dict["agent"][i]["row"]
+            prev_col = self.state_dict["agent"][i]["col"]
             self.state_dict["agent"][i]["row"] += actions[i][0]
             self.state_dict["agent"][i]["col"] += actions[i][1]
+            curr_row = self.state_dict["agent"][i]["row"]
+            curr_col = self.state_dict["agent"][i]["col"]
+            if curr_row < 0 or curr_row >= self.grid_size or curr_col < 0 or curr_col >= self.grid_size:
+            # undo the invalid move by reverting to the previous position
+                self.state_dict["agent"][i]["row"] = prev_row
+                self.state_dict["agent"][i]["col"] = prev_col
+
+
+            #self.state_dict["agent"][i]["row"] += actions[i][0]
+            #self.state_dict["agent"][i]["col"] += actions[i][1]
             
-        #make this not create a new state instead just update self.state_dict directly
+        # edge detection 
+        # consider if the agents are bumping into each other / edge detection 
+
+
+        # make this not create a new state instead just update self.state_dict directly
         # dont return anything
         
 
@@ -122,7 +103,6 @@ class Game: # each state stores the positions, reward, action, and terminal stat
                     rewards[i] += self.goal_reward
                 else:
                     rewards[i] += self.action_cost
-        
         return rewards
                                                 # otherwise, for now return default action cost
     
@@ -167,17 +147,17 @@ def generate_trajectory(max_episode, max_time_step):
     
     # Loop through the specified number of episodes
     for episode in range(max_episode):
-        state = Game(-1, 10)                                           # Create a new game state object with the specified action cost and goal reward
-        episode_trajectory = []                                        # Create an empty list to store the trajectory for the current episode
+        state = Game(-1, 10)                                          
+        episode_trajectory = []                                        
 
         # Loop through the specified number of time steps
         for i in range(max_time_step):
             ###### policy random should be a class in the future ...                                  
-            actions = policy_random(state)                             # Choose a random action according to a random policy
-            reward = state.reward(actions)                              # Get the reward for the current state and action
-            terminal = state.is_terminal()                             # Check if the current state is terminal 
+            actions = policy_random(state)                            
+            reward = state.reward(actions)                            
+            terminal = state.is_terminal()                           
             curr_state = (state.state_dict, actions, reward, terminal)
-            state.transition(actions)                      # Get the next state by applying the chosen action to the current state
+            state.transition(actions)                                
 
             episode_trajectory.append(curr_state)
 
