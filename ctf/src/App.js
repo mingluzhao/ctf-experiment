@@ -9,7 +9,7 @@ const socket = io('http://localhost:8080');
 const App = () => {
 
   const [stateIndex, setStateIndex] = useState(0); // Keep track of the current state index
-  const [states, setStates] = useState([]); // Store all the states from the JSON file
+  //const [states, setStates] = useState([]); // Store all the states from the JSON file
   const [agents, setAgents] = useState([]); // Store the agents for the current state
   const [obstacles, setObstacles] = useState([]); // Store the obstacles for the current state
   const [message, setMessage] = useState(null); // Store the message from the server
@@ -25,7 +25,7 @@ const App = () => {
       console.log('Received message:', message);
 
       // Update the message state with the parsed message
-      setMessage(message);
+      setMessage(message[0]);
     });
 
     // Clean up the socket event listener when component unmounts
