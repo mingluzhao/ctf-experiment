@@ -76,6 +76,29 @@ const App = () => {
     }
   }
 
+  const handleKeyDown = (event) => {
+    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    const directionMap = {
+      'ArrowUp': 'up',
+      'ArrowDown': 'down',
+      'ArrowLeft': 'left',
+      'ArrowRight': 'right',
+    };
+    if (arrowKeys.includes(event.key)) {
+      const direction = directionMap[event.key];
+      console.log(`Sending message with direction ${direction}`);
+      socket.emit('arrow-key-pressed', { direction });
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+  });
+
   return (
     <div>
       {agents.length > 0 && obstacles.length > 0 &&
