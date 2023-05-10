@@ -1,11 +1,17 @@
 import random 
 import json 
 
+grid_size = 10 
+movement_coords = [[0,1], [1,0], [0,-1], [-1,0]]
+
+UP = 0
+RIGHT = 1
+DOWN = 2
+LEFT = 3
 
 class Game: # each state stores the positions, reward, action, and terminal status
     # THIS IS ONE GAME THAT HAS DIFFERENT PROPERTIES THAT CAN BE UPDATED LATER ON
-    grid_size = 10 
-
+    
     # def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
 
     def __init__(self, action_cost, goal_reward):
@@ -17,13 +23,13 @@ class Game: # each state stores the positions, reward, action, and terminal stat
                     "id": "a1",
                     "row": random.randint(0, 9),
                     "col": random.randint(0, 9),
-                    "direction": random.choice(["up", "down", "left", "right"])
+                    "direction": random.choice(0,3)
                 },
                 {
                     "id": "a2",
                     "row": random.randint(0, 9),
                     "col": random.randint(0, 9),
-                    "direction": random.choice(["up", "down", "left", "right"])
+                    "direction": random.choice(0,3)
                 }
             ],
             "obstacle": [
@@ -63,11 +69,30 @@ class Game: # each state stores the positions, reward, action, and terminal stat
 
     def transition(self, actions):
         blocked = False
-        for agent in self.state_dict["agent"]:
+        for agent, action in zip(self.state_dict["agent"], actions):
             curr_row = agent["row"]
             curr_row = agent["col"]
-            new_row =  curr_row + actions[i][0]
-            new_col =  curr_row + actions[i][1]
+            new_row = curr_row
+            new_row = curr_row
+            if action == "forward":
+                move = movement_coords[agent["direction"]]
+                new_row =  curr_row + move[0]
+                new_col =  curr_row + move[1]
+            elif action == "backward":
+                move = movement_coords[agent["direction"]]
+                new_row =  curr_row + move[0]
+                new_col =  curr_row + move[1]
+            elif action == "turn_r":
+                if agent["direction"] == 4:
+                    agent["direction"] = 0
+                else:
+                    agent["direction"] += 1
+            elif action == "turn_l":
+                if agent["direction"] == 0:
+                    agent["direction"] = 4
+                else:
+                    agent["direction"] -= 1
+    
             # check if agent is moving into obstacle
             for obstacle in self.state_dict["obstacle"]:
                 if new_row == obstacle["row"] and new_col == obstacle["col"]:
@@ -82,9 +107,9 @@ class Game: # each state stores the positions, reward, action, and terminal stat
             if new_row < 0 or new_row >= self.grid_size or new_col < 0 or new_col >= self.grid_size:
                 blocked = True
             # undo the invalid move by reverting to the previous position
-            if blocked == True:
-                self.state_dict["agent"][i]["row"] = new_row
-                self.state_dict["agent"][i]["col"] = new_col
+            if blocked == False:
+                agent["row"] = new_row
+                agent["col"] = new_col
             blocked = False
             
         # edge detection 
@@ -93,12 +118,7 @@ class Game: # each state stores the positions, reward, action, and terminal stat
 
         # make this not create a new state instead just update self.state_dict directly
         # dont return anything
-        
 
-        '''
-        for i in range(0, len(agent_actions)):
-            state.state_dict["a1"][i] += agent_actions[i]
-        '''
 
     # calculate the reward for taking the given action
     def reward(self, actions): 
@@ -124,31 +144,15 @@ class Game: # each state stores the positions, reward, action, and terminal stat
                     return True
         return False 
 
-        '''
-        for multiple agents:
-        
-        for agent_pos in state.state_dict["a1"]:
-            if agent_pos == state.state_dict["f1"]:
-                terminal = True
-
-        '''
-
-
 # choose a random move from the possible moves (up, down, left, right, stay)
 def policy_random(state):
     agent_actions = []
-    possible_moves = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)] 
+    possible_moves = ["forward", "backward", "turn_r", "turn_l"] 
 
     for agent in state.state_dict["agent"]:
         agent_actions.append(random.choice(possible_moves))
     
     return agent_actions
-    '''
-    for multiple agents         
-    agent_actions = []
-    agent_actions = random.choice(possible_moves)
-    return agent_actions
-    '''
 
 # Store data for multiple runthroughs of the game 
 def generate_trajectory(max_episode, max_time_step):                   
