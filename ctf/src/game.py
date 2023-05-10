@@ -61,22 +61,31 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         # keep track of the state that you currently having
         # obstacle detection will be in here later on - "physics part"
 
-    def transition(self, actions): 
-        for i in range(0, len(self.state_dict["agent"])):
-            prev_row = self.state_dict["agent"][i]["row"]
-            prev_col = self.state_dict["agent"][i]["col"]
-            self.state_dict["agent"][i]["row"] += actions[i][0]
-            self.state_dict["agent"][i]["col"] += actions[i][1]
-            curr_row = self.state_dict["agent"][i]["row"]
-            curr_col = self.state_dict["agent"][i]["col"]
-            if curr_row < 0 or curr_row >= self.grid_size or curr_col < 0 or curr_col >= self.grid_size:
+    def transition(self, actions):
+        blocked = False
+        for agent in self.state_dict["agent"]:
+            curr_row = agent["row"]
+            curr_row = agent["col"]
+            new_row =  curr_row + actions[i][0]
+            new_col =  curr_row + actions[i][1]
+            # check if agent is moving into obstacle
+            for obstacle in self.state_dict["obstacle"]:
+                if new_row == obstacle["row"] and new_col == obstacle["col"]:
+                    blocked = True
+            # check if agent is moving into another agent
+            for other_agent in self.state_dict["agent"]:
+                if agent is other_agent:
+                    pass
+                elif new_row == other_agent["row"] and new_col == other_agent["col"]:
+                    blocked = True
+            # check if agent is moving out of grid
+            if new_row < 0 or new_row >= self.grid_size or new_col < 0 or new_col >= self.grid_size:
+                blocked = True
             # undo the invalid move by reverting to the previous position
-                self.state_dict["agent"][i]["row"] = prev_row
-                self.state_dict["agent"][i]["col"] = prev_col
-
-
-            #self.state_dict["agent"][i]["row"] += actions[i][0]
-            #self.state_dict["agent"][i]["col"] += actions[i][1]
+            if blocked == True:
+                self.state_dict["agent"][i]["row"] = new_row
+                self.state_dict["agent"][i]["col"] = new_col
+            blocked = False
             
         # edge detection 
         # consider if the agents are bumping into each other / edge detection 
