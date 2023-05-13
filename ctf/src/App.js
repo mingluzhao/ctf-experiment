@@ -6,6 +6,10 @@ import agentImg from './agent.png';
 
 const socket = io('http://localhost:8080');
 
+socket.on('connect', () => {
+  console.log('Connected to server');
+});
+
 const App = () => {
   const [stateIndex, setStateIndex] = useState(0);
   const [agents, setAgents] = useState([]);
@@ -75,21 +79,19 @@ const App = () => {
         return 0;
     }
   }
-
+  // NEW HANDLEKEYDOWN
   const handleKeyDown = (event) => {
-    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-    const directionMap = {
-      'ArrowUp': 'up',
-      'ArrowDown': 'down',
-      'ArrowLeft': 'left',
-      'ArrowRight': 'right',
-    };
-    if (arrowKeys.includes(event.key)) {
-      const direction = directionMap[event.key];
-      console.log(`Sending message with direction ${direction}`);
-      socket.emit('arrow-key-pressed', { direction });
+    console.log("Key pressed")
+    if (event.key === 'ArrowUp') {
+      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'up' });
+    } else if (event.key === 'ArrowDown') {
+      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'down' });
+    } else if (event.key === 'ArrowLeft') {
+      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'left' });
+    } else if (event.key === 'ArrowRight') {
+      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'right' });
     }
-  }
+  };
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -97,7 +99,7 @@ const App = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     }
-  });
+  }, []);
 
   return (
     <div>

@@ -1,5 +1,7 @@
 import random 
 import json 
+import sys
+import time
 
 grid_size = 10 
 movement_coords = [[0,1], [1,0], [0,-1], [-1,0]]
@@ -23,13 +25,13 @@ class Game: # each state stores the positions, reward, action, and terminal stat
                     "id": "a1",
                     "row": random.randint(0, 9),
                     "col": random.randint(0, 9),
-                    "direction": random.choice(0,3)
+                    "direction": random.randint(0,3)
                 },
                 {
                     "id": "a2",
                     "row": random.randint(0, 9),
                     "col": random.randint(0, 9),
-                    "direction": random.choice(0,3)
+                    "direction": random.randint(0,3)
                 }
             ],
             "obstacle": [
@@ -67,50 +69,59 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         # keep track of the state that you currently having
         # obstacle detection will be in here later on - "physics part"
 
-    def transition(self, actions):
+    # move one agent at a time
+    def transition(self, action):
         blocked = False
-        for agent, action in zip(self.state_dict["agent"], actions):
-            curr_row = agent["row"]
-            curr_row = agent["col"]
-            new_row = curr_row
-            new_row = curr_row
-            if action == "forward":
-                move = movement_coords[agent["direction"]]
-                new_row =  curr_row + move[0]
-                new_col =  curr_row + move[1]
-            elif action == "backward":
-                move = movement_coords[agent["direction"]]
-                new_row =  curr_row + move[0]
-                new_col =  curr_row + move[1]
-            elif action == "turn_r":
-                if agent["direction"] == 4:
-                    agent["direction"] = 0
-                else:
-                    agent["direction"] += 1
-            elif action == "turn_l":
-                if agent["direction"] == 0:
-                    agent["direction"] = 4
-                else:
-                    agent["direction"] -= 1
-    
-            # check if agent is moving into obstacle
-            for obstacle in self.state_dict["obstacle"]:
-                if new_row == obstacle["row"] and new_col == obstacle["col"]:
-                    blocked = True
-            # check if agent is moving into another agent
-            for other_agent in self.state_dict["agent"]:
-                if agent is other_agent:
-                    pass
-                elif new_row == other_agent["row"] and new_col == other_agent["col"]:
-                    blocked = True
-            # check if agent is moving out of grid
-            if new_row < 0 or new_row >= self.grid_size or new_col < 0 or new_col >= self.grid_size:
+        agent = self.state_dict["agent"][action[0]]
+        curr_row = agent["row"]
+        curr_col = agent["col"]
+        print("curr_row: " + str(curr_row) + " curr_col: " + str(curr_col))
+        new_row = curr_row
+        new_col = curr_col
+        if action[1] == "forward":
+            move = movement_coords[agent["direction"]]
+            new_row =  curr_row + move[1]
+            new_col =  curr_row + move[0]
+        elif action[1] == "backward":
+            move = movement_coords[agent["direction"]]
+            new_row =  curr_row - move[1]
+            new_col =  curr_row - move[0]
+        elif action[1] == "turn_r":
+            if agent["direction"] == 3:
+                agent["direction"] = 0
+            else:
+                agent["direction"] += 1
+            print("turned!")
+            return
+        elif action[1] == "turn_l":
+            if agent["direction"] == 0:
+                agent["direction"] = 3
+            else:
+                agent["direction"] -= 1
+            print("turned!")
+            return
+
+        # check if agent is moving into obstacle
+        for obstacle in self.state_dict["obstacle"]:
+            if new_row == obstacle["row"] and new_col == obstacle["col"]:
                 blocked = True
-            # undo the invalid move by reverting to the previous position
-            if blocked == False:
-                agent["row"] = new_row
-                agent["col"] = new_col
-            blocked = False
+        # check if agent is moving into another agent
+        for other_agent in self.state_dict["agent"]:
+            if agent is other_agent:
+                pass
+            elif new_row == other_agent["row"] and new_col == other_agent["col"]:
+                blocked = True
+        # check if agent is moving out of grid
+        if new_row < 0 or new_row >= grid_size or new_col < 0 or new_col >= grid_size:
+            blocked = True
+        # undo the invalid move by reverting to the previous position
+        if blocked == False:
+            print("updating state!")
+            agent["row"] = new_row
+            agent["col"] = new_col
+
+            print("new_row: " + str(new_row) + " new_col: " + str(new_col))
+
             
         # edge detection 
         # consider if the agents are bumping into each other / edge detection 
@@ -126,7 +137,7 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         for i in range(len(actions)):
             agent = self.state_dict["agent"][i]
             row = agent["row"]
-            col = agent["col"]
+            col = agent["col"] 
             for flag in self.state_dict["flag"]:
                 if row == flag["row"] and col == flag["col"]:
                     rewards[i] += self.goal_reward
@@ -154,6 +165,27 @@ def policy_random(state):
     
     return agent_actions
 
+def main():
+    game = Game(-1, 10)
+
+    while True:
+        agent = random.randint(0,1)
+        move = random.choice(["forward", "backward", "turn_r", "turn_l"])
+
+        print(str(agent) + ", " + move)
+        game.transition([agent, move])
+
+        json_string = json.dumps(game.state_dict)
+        with open('../all_episode_trajectories.json', 'w') as f:
+            print(game.state_dict)
+            f.write(json_string)
+        
+        time.sleep(1)
+
+if __name__ == '__main__':
+    main()
+
+'''
 # Store data for multiple runthroughs of the game 
 def generate_trajectory(max_episode, max_time_step):                   
     all_episode_trajectory = []                                        
@@ -180,7 +212,7 @@ def generate_trajectory(max_episode, max_time_step):
     return all_episode_trajectory
 
 # array that stores the result of generate_trajectory
-temp = generate_trajectory(1, 3)
+temp = generate_trajectory(1, 10)
 print(temp)
 
 json_string = json.dumps(temp)
@@ -188,4 +220,4 @@ json_string = json.dumps(temp)
 # converts it to json format
 with open('all_episode_trajectories.json', 'w') as f:
     f.write(json_string)
-
+'''
