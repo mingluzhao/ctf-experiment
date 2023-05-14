@@ -3,6 +3,7 @@ import GameBoard from './GameBoard';
 import Agent from './Agent';
 import { io } from 'socket.io-client';
 import agentImg from './agent.png';
+import jsonMessage from './all_episode_trajectories.json';
 
 const socket = io('http://localhost:8080');
 
@@ -11,50 +12,33 @@ socket.on('connect', () => {
 });
 
 const App = () => {
-  const [stateIndex, setStateIndex] = useState(0);
   const [agents, setAgents] = useState([]);
   const [obstacles, setObstacles] = useState([]);
-  const [message, setMessage] = useState(null);
+  const [flags, setFlags] = useState([]);
 
   useEffect(() => {
-    socket.emit('send-state-to-server');
-
-    socket.on('send-state-to-client', (jsonMessage) => {
-      const message = JSON.parse(jsonMessage);
+    const intervalId = setInterval(() => {
+      const message = jsonMessage;
       console.log('Received message:', message);
-
-      setMessage(message[0]);
-    });
-
-    return () => {
-      socket.off('send-state-to-client');
-    }
+      if (!message) {
+        return;
+      }
+  
+      const agents = message.agent;
+      const obstacles = message.obstacle;
+      const flags = message.flag;
+  
+      const obstacleCoords = obstacles.map(o => ({ row: o.row, col: o.col }));
+      const flagCoords = flags.map(f => ({ row: f.row, col: f.col }));
+  
+      setAgents(agents);
+      setObstacles(obstacleCoords);
+      setFlags(flagCoords);
+    }, 1000); // interval in milliseconds
+  
+    return () => clearInterval(intervalId);
   }, []);
-
-  useEffect(() => {
-    console.log('Parsing states');
-
-    if (!message) {
-      return;
-    }
-
-    const currentState = message[stateIndex];
-
-    const agents = currentState[0].agent;
-    const obstacles = currentState[0].obstacle;
-
-    const obstacleCoords = obstacles.map(o => ({ row: o.row, col: o.col }));
-
-    setAgents(agents);
-    setObstacles(obstacleCoords);
-
-    if (stateIndex < message.length - 1) {
-      const timeoutId = setTimeout(() => {
-        setStateIndex(stateIndex + 1);
-      }, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [stateIndex, message]);
+  
 
   useEffect(() => {
     agents.forEach(agent => {
@@ -66,20 +50,10 @@ const App = () => {
   }, [agents]);
 
   const getAngle = (direction) => {
-    switch (direction) {
-      case "up":
-        return 0;
-      case "down":
-        return 180;
-      case "left":
-        return -90;
-      case "right":
-        return 90;
-      default:
-        return 0;
-    }
-  }
-  // NEW HANDLEKEYDOWN
+    const angle = parseInt(direction) * 90;
+    return angle;
+  }  
+
   const handleKeyDown = (event) => {
     console.log("Key pressed")
     if (event.key === 'ArrowUp') {
@@ -103,17 +77,19 @@ const App = () => {
 
   return (
     <div>
-      {agents.length > 0 && obstacles.length > 0 &&
+      {agents.length > 0 && obstacles.length > 0 && flags.length > 0 &&
         <GameBoard
           numRows={10}
           numCols={10}
           obstacleCoords={obstacles}
           agentCoords={agents}
+          flagCoords={flags}
         />
       }
       {agents.map(agent => (
         <Agent
           key={agent.id}
+          id={agent.id}
           src={agentImg}
           position={{
             top: `${40 * agent.row + 30}px`,

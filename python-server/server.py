@@ -35,8 +35,9 @@ def keydown(sid, data):
     
     json_string = json.dumps(game.state_dict)
 
-    with open('../all_episode_trajectories.json', 'w') as f:
+    with open('../ctf/src/all_episode_trajectories.json', 'w') as f:
         f.write(json_string)
+        print('wrote to file')
 
 
 def main():
