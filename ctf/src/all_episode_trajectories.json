@@ -1,1 +1,7 @@
-{"agent": [{"id": "a1", "row": 6, "col": 1, "direction": 2}, {"id": "a2", "row": 4, "col": 9, "direction": 0}], "obstacle": [{"id": "o1", "row": 9, "col": 6}, {"id": "o2", "row": 3, "col": 7}], "flag": [{"id": "f1", "row": 0, "col": 8}, {"id": "f2", "row": 4, "col": 6}]}
+{"agent": [
+ {"id": "a1", "row": 2, "col": 1, "direction": 3},
+ {"id": "a2", "row": 2, "col": 2, "direction": 0},
+ {"id": "a3", "row": 2, "col": 3, "direction": 1},
+ {"id": "a4", "row": 2, "col": 4, "direction": 2},
+ {"id": "a5", "row": 2, "col": 5, "direction": 3}]
+, "obstacle": [{"id": "o1", "row": 9, "col": 6}, {"id": "o2", "row": 3, "col": 7}], "flag": [{"id": "f1", "row": 0, "col": 8}, {"id": "f2", "row": 4, "col": 6}]}

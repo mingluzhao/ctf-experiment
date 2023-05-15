@@ -1,9 +1,0 @@
-.game-board {
-    display: grid;
-    grid-template-columns: repeat(40px);
-    grid-template-rows: repeat(40px);
-    gap: 0px; /* Example: gap between squares of 1px */
-  }
-  
-  /* Add any additional styles for the game board, such as background color, border, etc. */
-  

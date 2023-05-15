@@ -38,16 +38,6 @@ const App = () => {
   
     return () => clearInterval(intervalId);
   }, []);
-  
-
-  useEffect(() => {
-    agents.forEach(agent => {
-      const agentImgElem = document.getElementById(agent.id);
-      if (agentImgElem) {
-        agentImgElem.style.transform = `rotate(${getAngle(agent.direction)}deg)`;
-      }
-    });
-  }, [agents]);
 
   const getAngle = (direction) => {
     const angle = parseInt(direction) * 90;
@@ -75,12 +65,21 @@ const App = () => {
     }
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'; // prevent scrolling
+  }, []);  
+
+  const middleX = window.innerWidth / 2;
+  const middleY = window.innerHeight / 2;
+  const rows=15;
+  const cols=15;
+
   return (
     <div>
       {agents.length > 0 && obstacles.length > 0 && flags.length > 0 &&
         <GameBoard
-          numRows={10}
-          numCols={10}
+          numRows={rows}
+          numCols={cols}
           obstacleCoords={obstacles}
           agentCoords={agents}
           flagCoords={flags}
@@ -92,8 +91,8 @@ const App = () => {
           id={agent.id}
           src={agentImg}
           position={{
-            top: `${40 * agent.row + 30}px`,
-            left: `${40 * agent.col + 30}px`
+            top: `${middleY - (rows/2 * 40) + 40 * agent.row + 25}px`,
+            left: `${middleX - (cols/2 * 40) + 40 * agent.col + 20}px`
           }}
           direction={getAngle(agent.direction)}
         />

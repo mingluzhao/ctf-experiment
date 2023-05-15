@@ -9,7 +9,7 @@ const Agent = ({ src, position, direction }) => {
   const transform = `rotate(${direction}deg)`;
   return (
     <div style={{ position: 'absolute', top, left, transform }}>
-      <img src={src} style={{ height: `${squareSize-5}px`, width: `${squareSize-5}px`, objectFit: "contain", border: "none" }} />
+      <img src={src} style={{ height: `${squareSize}px`, width: `${squareSize}px`, objectFit: "contain", border: "none" }} />
     </div>
   );
 };

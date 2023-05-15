@@ -48,14 +48,24 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords }) => {
   return (
     <div
       style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${numCols}, 40px)`,
-        gridTemplateRows: `repeat(${numRows}, 40px)`,
-        gap: '0px', // Change the gap to zero pixels
-        // Add any additional styles for the game board, such as background color, border, etc.
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh', // Set the height of the container to fill the entire viewport
+        // Add any additional styles for the container, such as background color, etc.
       }}
     >
-      {renderSquares()}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${numCols}, 40px)`,
+          gridTemplateRows: `repeat(${numRows}, 40px)`,
+          gap: '0px', // Change the gap to zero pixels
+          // Add any additional styles for the game board, such as background color, border, etc.
+        }}
+      >
+        {renderSquares()}
+      </div>
     </div>
   );
 };

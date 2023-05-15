@@ -1,8 +1,12 @@
 .square {
   width: 40px;
   height: 40px;
-  background-color: #fff; /* set background color to white */
-  border: 1px solid #000; /* set border color to black */
+  background-color: #fff;
+  border: 1px solid #000;
+  border-width: 0.5px; /* set the border thickness to 0.5px */
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box; /* include padding and border in the element's total width and height */
 }
 
 .obstacle {
@@ -13,6 +17,8 @@
   bottom: 0;
   width: 40px;
   height: 40px;
-  background-color: #808080; /* set background color to grey */
-  z-index: 10; /* set a higher z-index to make sure the obstacle renders above the grid */
+  background-color: #808080;
+  z-index: 10;
+  margin: 0; /* remove any margin */
+  padding: 0; /* remove any padding */
 }
