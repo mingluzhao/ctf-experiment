@@ -9,6 +9,10 @@ client_order = {}
 next_order_num = 0
 
 game = Game(-1, 10)
+init_json_string = json.dumps(game.state_dict)
+
+with open('../ctf/src/all_episode_trajectories.json', 'w') as f:
+    f.write(init_json_string)
 
 @sio.on('connect')
 def connect(sid, environ):
