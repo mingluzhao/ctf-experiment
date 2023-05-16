@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
 
-const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords }) => {
+const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords }) => {
   const [squares, setSquares] = useState([]);
 
   // Initialize the squares state with numRows x numCols empty objects
@@ -17,26 +17,65 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords }) => {
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
         // Render the Obstacle component for any square that matches the provided obstacle coordinates
-        if (obstacleCoords.some(coord => coord.row === row && coord.col === col)) {
+        if (obstacleCoords.some(coord => coord.row+1 === row && coord.col+1 === col)) {
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass obstacle prop as true to SquareParent component */}
-              <SquareParent agent={false} obstacle={true} flag={false} beam={false} />
+              <SquareParent agent={false} obstacle={true} flag={false} beam={false} border={false} />
               <div className="obstacle"></div>
             </div>
           );
         // Render the Agent component for any square that matches the provided agent coordinates
-        } else if (agentCoords.some(coord => coord.row === row && coord.col === col)) {
+        } else if (agentCoords.some(coord => coord.row+1 === row && coord.col+1 === col)) {
           squares.push(
             <div key={`${row}-${col}-agent`} style={{ position: 'relative' }}>
               {/* Pass agent prop as true to SquareParent component */}
-              <SquareParent agent={true} obstacle={false} flag={false} beam={false} />
+              <SquareParent agent={true} obstacle={false} flag={false} beam={false} border={false} />
+            </div>
+          );
+        } else if (flagCoords.some(coord => coord.row+1 === row && coord.col+1 === col)) {
+          squares.push(
+            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
+              {/* Pass agent prop as true to SquareParent component */}
+              <SquareParent agent={false} obstacle={false} flag={true} beam={false} border={false} />
+            </div>
+          );
+        } else if (row === 0) {
+          squares.push(
+            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
+              {/* Pass obstacle prop as true to SquareParent component */}
+              <SquareParent agent={false} obstacle={false} flag={false} beam={false} border={true} />
+              <div className="border"></div>
+            </div>
+          );
+        } else if (row === numRows-1) {
+          squares.push(
+            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
+              {/* Pass obstacle prop as true to SquareParent component */}
+              <SquareParent agent={false} obstacle={false} flag={false} beam={false} border={true} />
+              <div className="border"></div>
+            </div>
+          );
+        } else if (col === 0) {
+          squares.push(
+            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
+              {/* Pass obstacle prop as true to SquareParent component */}
+              <SquareParent agent={false} obstacle={false} flag={false} beam={false} border={true} />
+              <div className="border"></div>
+            </div>
+          );
+        } else if (col === numCols-1) {
+          squares.push(
+            <div key={`${row}-${col}`} style={{ position: 'relative' }}>
+              {/* Pass obstacle prop as true to SquareParent component */}
+              <SquareParent agent={false} obstacle={false} flag={false} beam={false} border={true} />
+              <div className="border"></div>
             </div>
           );
         } else {
           squares.push(
             <div key={`${row}-${col}`}>
-              <SquareParent agent={false} obstacle={false} flag={false} beam={false}/>
+              <SquareParent agent={false} obstacle={false} flag={false} beam={false} border={false} />
             </div>
           );
         }

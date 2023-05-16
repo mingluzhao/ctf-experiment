@@ -34,7 +34,7 @@ const App = () => {
       setAgents(agents);
       setObstacles(obstacleCoords);
       setFlags(flagCoords);
-    }, 50); // interval in milliseconds
+    }, 100); // interval in milliseconds
   
     return () => clearInterval(intervalId);
   }, []);
@@ -71,15 +71,15 @@ const App = () => {
 
   const middleX = window.innerWidth / 2;
   const middleY = window.innerHeight / 2;
-  const rows=15;
-  const cols=15;
+  const rows=10;
+  const cols=10;
 
   return (
     <div>
       {agents.length > 0 && obstacles.length > 0 && flags.length > 0 &&
         <GameBoard
-          numRows={rows}
-          numCols={cols}
+          numRows={rows+2}
+          numCols={cols+2}
           obstacleCoords={obstacles}
           agentCoords={agents}
           flagCoords={flags}
