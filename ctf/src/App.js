@@ -34,7 +34,7 @@ const App = () => {
       setAgents(agents);
       setObstacles(obstacleCoords);
       setFlags(flagCoords);
-    }, 1000); // interval in milliseconds
+    }, 50); // interval in milliseconds
   
     return () => clearInterval(intervalId);
   }, []);

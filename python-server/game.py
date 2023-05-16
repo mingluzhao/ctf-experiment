@@ -80,12 +80,16 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         new_col = curr_col
         if action[1] == "forward":
             move = movement_coords[agent["direction"]]
+            print("new row: " + str(new_row) + " move[1]: " + str(move[1]))
+            print("new col: " + str(new_col) + " move[0]: " + str(move[0]))
             new_row =  curr_row + move[1]
-            new_col =  curr_row + move[0]
+            new_col =  curr_col + move[0]
         elif action[1] == "backward":
             move = movement_coords[agent["direction"]]
+            print("new row: " + str(new_row) + " move[1]: " + str(move[1]))
+            print("new col: " + str(new_col) + " move[0]: " + str(move[0]))
             new_row =  curr_row - move[1]
-            new_col =  curr_row - move[0]
+            new_col =  curr_col - move[0]
         elif action[1] == "turn_r":
             if agent["direction"] == 3:
                 agent["direction"] = 0
@@ -176,8 +180,8 @@ def main():
         game.transition([agent, move])
 
         json_string = json.dumps(game.state_dict)
-        with open('../all_episode_trajectories.json', 'w') as f:
-            print(game.state_dict)
+        with open('../ctf/src/all_episode_trajectories.json', 'w') as f:
+            #print(game.state_dict)
             f.write(json_string)
         
         time.sleep(1)
