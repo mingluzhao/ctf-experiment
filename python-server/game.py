@@ -18,7 +18,6 @@ class Game: # each state stores the positions, reward, action, and terminal stat
 
     def __init__(self, action_cost, goal_reward):
         # state dictionary : agent, obstacle, flag -> list of coordinates 
-
         self.state_dict = {
             "agent": [
                 {
@@ -62,7 +61,18 @@ class Game: # each state stores the positions, reward, action, and terminal stat
         self.action_cost = action_cost # cost of an action (constant)
         self.goal_reward = goal_reward # reward for reaching the goal (constant)
         self.terminal = False          # if the game has ended or not
+        self.agent_count = len(self.state_dict['agent'])
 
+    #add new agents to the game
+    def add_agent(self, client_id):
+        self.agent_count += 1
+        new_agent = {
+            "id": f"a{self.agent_count}",
+            "row": random.randint(0, 9),
+            "col": random.randint(0, 9),
+            "direction": random.randint(0,3)
+        }
+        self.state_dict["agent"].append(new_agent)
 
      # take out the current state and take out the transition -> 
         # update the current state and directly change the game object 

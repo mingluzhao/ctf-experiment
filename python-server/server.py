@@ -16,11 +16,21 @@ with open('../ctf/src/all_episode_trajectories.json', 'w') as f:
 
 @sio.on('connect')
 def connect(sid, environ):
-    global next_order_num
     # Store the client ID and order of arrival in the client_order map
-    client_order[sid] = next_order_num
+    print('Client', sid)
+
+@sio.on('addNewAgent')
+def addagent(sid, data):
+    global next_order_num
+    client_id = data['clientId']
+    client_order[client_id] = next_order_num
     next_order_num += 1
-    print('Client', sid, 'connected (order', client_order[sid], ')')
+    game.add_agent(client_id)
+    print("agent added with client id: " + client_id)
+    json_string = json.dumps(game.state_dict)
+    with open('../ctf/src/all_episode_trajectories.json', 'w') as f:
+        f.write(json_string)
+        print('wrote to file')
 
 @sio.on('arrowKeyPress')
 def keydown(sid, data):

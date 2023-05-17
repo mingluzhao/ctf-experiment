@@ -21,9 +21,9 @@ const App = () => {
       if (!IdInit) {
         setClientId(socket.id); // Set the client ID state when the socket connects
         setIdInit(true); // Set IdInit to true so that the clientId is not updated again
-        console.log(clientId);
+        socket.emit('addNewAgent', { clientId: socket.id });
+        console.log("agent added" + socket.id);
       }
-      console.log(IdInit);
     });
   }, []);  
 
