@@ -44,7 +44,7 @@ const App = () => {
       setAgents(agents);
       setObstacles(obstacleCoords);
       setFlags(flagCoords);
-    }, 100); // interval in milliseconds
+    }, 50); // interval in milliseconds
   
     return () => clearInterval(intervalId);
   }, []);
@@ -55,21 +55,26 @@ const App = () => {
   }  
 
   const handleKeyDown = (event, clientId) => {
+    event.preventDefault(); // prevent the default behavior of the event
+  
     if (clientId === '') {
       return;
     }
+    
     console.log("Key pressed")
-    if (event.key === 'ArrowUp') {
-      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'up' });
-    } else if (event.key === 'ArrowDown') {
-      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'down' });
-    } else if (event.key === 'ArrowLeft') {
-      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'left' });
-    } else if (event.key === 'ArrowRight') {
-      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'right' });
+    if (socket.id === clientId) {
+      if (event.key === 'ArrowUp') {
+        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'up' });
+      } else if (event.key === 'ArrowDown') {
+        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'down' });
+      } else if (event.key === 'ArrowLeft') {
+        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'left' });
+      } else if (event.key === 'ArrowRight') {
+        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'right' });
+      }
     }
   };
-
+  
   // Add event listener only once, outside of any useEffect hooks
   useEffect(() => {
     document.addEventListener('keydown', (event) => handleKeyDown(event, clientId));
