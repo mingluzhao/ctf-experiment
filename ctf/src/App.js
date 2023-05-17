@@ -7,19 +7,29 @@ import jsonMessage from './all_episode_trajectories.json';
 
 const socket = io('http://localhost:8080');
 
-socket.on('connect', () => {
-  console.log('Connected to server');
-});
-
 const App = () => {
   const [agents, setAgents] = useState([]);
   const [obstacles, setObstacles] = useState([]);
   const [flags, setFlags] = useState([]);
+  const [clientId, setClientId] = useState('');
+  const [IdInit, setIdInit] = useState(false);
+
+  useEffect(() => {
+    // Listen for the "connect" event, which is emitted when the socket connection is established
+    socket.on('connect', () => {
+      console.log('Connected to server');
+      if (!IdInit) {
+        setClientId(socket.id); // Set the client ID state when the socket connects
+        setIdInit(true); // Set IdInit to true so that the clientId is not updated again
+        console.log(clientId);
+      }
+      console.log(IdInit);
+    });
+  }, []);  
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       const message = jsonMessage;
-      console.log('Received message:', message);
       if (!message) {
         return;
       }
@@ -44,31 +54,35 @@ const App = () => {
     return angle;
   }  
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event, clientId) => {
+    if (clientId === '') {
+      return;
+    }
     console.log("Key pressed")
     if (event.key === 'ArrowUp') {
-      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'up' });
+      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'up' });
     } else if (event.key === 'ArrowDown') {
-      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'down' });
+      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'down' });
     } else if (event.key === 'ArrowLeft') {
-      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'left' });
+      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'left' });
     } else if (event.key === 'ArrowRight') {
-      socket.emit('arrowKeyPress', { clientId: socket.id, direction: 'right' });
+      socket.emit('arrowKeyPress', { clientId: clientId, direction: 'right' });
     }
   };
 
+  // Add event listener only once, outside of any useEffect hooks
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-
+    document.addEventListener('keydown', (event) => handleKeyDown(event, clientId));
+  
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', (event) => handleKeyDown(event, clientId));
     }
-  }, []);
+  }, [clientId]); // Add empty dependency array to run the effect only once
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'; // prevent scrolling
   }, []);  
-
+  
   const middleX = window.innerWidth / 2;
   const middleY = window.innerHeight / 2;
   const rows=10;

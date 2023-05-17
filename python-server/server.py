@@ -27,7 +27,7 @@ def keydown(sid, data):
     print("key press detected")
     direction = data['direction']
     player_id = data['clientId']
-
+    print(game.state_dict)
     if direction == 'left':
         game.transition([client_order[player_id], "turn_l"])
     elif direction == 'right':
@@ -38,7 +38,7 @@ def keydown(sid, data):
         game.transition([client_order[player_id], "backward"])
     
     json_string = json.dumps(game.state_dict)
-
+    print(game.state_dict)
     with open('../ctf/src/all_episode_trajectories.json', 'w') as f:
         f.write(json_string)
         print('wrote to file')
