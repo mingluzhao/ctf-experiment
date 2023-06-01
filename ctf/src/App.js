@@ -3,7 +3,6 @@ import GameBoard from './GameBoard';
 import Agent from './Agent';
 import { io } from 'socket.io-client';
 import agentImg from './agent.png';
-import jsonMessage from './all_episode_trajectories.json';
 
 const socket = io('http://localhost:8080');
 
@@ -22,46 +21,36 @@ const App = () => {
         setClientId(socket.id); // Set the client ID state when the socket connects
         setIdInit(true); // Set IdInit to true so that the clientId is not updated again
         socket.emit('addNewAgent', { clientId: socket.id });
-        console.log("agent added" + socket.id);
+        console.log('Agent added: ' + socket.id);
       }
     });
-  }, []);  
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const message = jsonMessage;
-      if (!message) {
-        return;
-      }
-  
-      const agents = message.agent;
-      const obstacles = message.obstacle;
-      const flags = message.flag;
-  
-      const obstacleCoords = obstacles.map(o => ({ row: o.row, col: o.col }));
-      const flagCoords = flags.map(f => ({ row: f.row, col: f.col }));
-  
-      setAgents(agents);
-      setObstacles(obstacleCoords);
-      setFlags(flagCoords);
-    }, 50); // interval in milliseconds
-  
-    return () => clearInterval(intervalId);
+    // Listen for the "updateState" event, which is emitted when the server sends a state update
+    socket.on('updateState', (message) => {
+      console.log('Update state message:', message);
+      const parsedMessage = JSON.parse(message);
+      const { agent, obstacle, flag } = parsedMessage;
+    
+      console.log('Parsed agents:', agent);
+      setAgents(agent || []);
+      setObstacles(obstacle || []);
+      setFlags(flag || []);
+    });    
   }, []);
 
   const getAngle = (direction) => {
     const angle = parseInt(direction) * 90;
     return angle;
-  }  
+  };
 
   const handleKeyDown = (event, clientId) => {
     event.preventDefault(); // prevent the default behavior of the event
-  
+
     if (clientId === '') {
       return;
     }
-    
-    console.log("Key pressed")
+
+    console.log('Key pressed');
     if (socket.id === clientId) {
       if (event.key === 'ArrowUp') {
         socket.emit('arrowKeyPress', { clientId: clientId, direction: 'up' });
@@ -74,24 +63,24 @@ const App = () => {
       }
     }
   };
-  
+
   // Add event listener only once, outside of any useEffect hooks
   useEffect(() => {
     document.addEventListener('keydown', (event) => handleKeyDown(event, clientId));
-  
+
     return () => {
       document.removeEventListener('keydown', (event) => handleKeyDown(event, clientId));
-    }
+    };
   }, [clientId]); // Add empty dependency array to run the effect only once
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'; // prevent scrolling
-  }, []);  
-  
+  }, []);
+
   const middleX = window.innerWidth / 2;
   const middleY = window.innerHeight / 2;
-  const rows=10;
-  const cols=10;
+  const rows = 10;
+  const cols = 10;
 
   return (
     <div>
