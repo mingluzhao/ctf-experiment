@@ -4,7 +4,7 @@ import Agent from './Agent';
 import { io } from 'socket.io-client';
 import agentImg from './agent.png';
 
-const socket = io('http://localhost:8080');
+const socket = io('http://128.97.30.83:8080');
 
 const App = () => {
   const [agents, setAgents] = useState([]);

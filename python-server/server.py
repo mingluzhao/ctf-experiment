@@ -55,7 +55,7 @@ def keydown(sid, data):
 def main():
     app = socketio.WSGIApp(sio)
     print('Server started on port 8080')
-    eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 8080)), app)
+    eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)
 
 if __name__ == '__main__':
     main()
