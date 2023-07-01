@@ -25,6 +25,12 @@ def emit_game_state():
     with open('./all_episode_trajectories.json', 'w') as f:
         f.write(json_string)
     sio.emit('updateState', json_string)  # Emit the updated state to all clients
+    if game.is_terminal():
+        emit_game_over()
+
+def emit_game_over():
+    print("game over!")
+    sio.emit('gameOver')
 
 @sio.on('addNewAgent')
 def addagent(sid, data):
@@ -38,6 +44,8 @@ def addagent(sid, data):
 
 @sio.on('arrowKeyPress')
 def keydown(sid, data):
+    if game.is_terminal():
+        return
     direction = data['direction']
     player_id = data['clientId']
     print(game.state_dict)
@@ -55,8 +63,9 @@ def keydown(sid, data):
 def main():
     app = socketio.WSGIApp(sio)
     print('Server started on port 8080')
-    eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)
-
+    #eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)
+    eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 8080)), app)
+    
 if __name__ == '__main__':
     main()
     # Start the server on port 5000

@@ -4,7 +4,8 @@ import Agent from './Agent';
 import { io } from 'socket.io-client';
 import agentImg from './agent.png';
 
-const socket = io('http://128.97.30.83:8080');
+//const socket = io('http://128.97.30.83:8080');
+const socket = io('http://localhost:8080');
 
 const App = () => {
   const [agents, setAgents] = useState([]);
@@ -12,6 +13,7 @@ const App = () => {
   const [flags, setFlags] = useState([]);
   const [clientId, setClientId] = useState('');
   const [IdInit, setIdInit] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     // Listen for the "connect" event, which is emitted when the socket connection is established
@@ -38,6 +40,11 @@ const App = () => {
     });    
   }, []);
 
+  socket.on('gameOver', () => {
+    console.log('game is over')
+    setGameOver(true);
+  });
+  
   const getAngle = (direction) => {
     const angle = parseInt(direction) * 90;
     return angle;
@@ -49,19 +56,24 @@ const App = () => {
     if (clientId === '') {
       return;
     }
-
     console.log('Key pressed');
+    if (gameOver) return;
+
     if (socket.id === clientId) {
       if (event.key === 'ArrowUp') {
         socket.emit('arrowKeyPress', { clientId: clientId, direction: 'up' });
-      } else if (event.key === 'ArrowDown') {
+      } 
+      else if (event.key === 'ArrowDown') {
         socket.emit('arrowKeyPress', { clientId: clientId, direction: 'down' });
-      } else if (event.key === 'ArrowLeft') {
+      } 
+      else if (event.key === 'ArrowLeft') {
         socket.emit('arrowKeyPress', { clientId: clientId, direction: 'left' });
-      } else if (event.key === 'ArrowRight') {
+      } 
+      else if (event.key === 'ArrowRight') {
         socket.emit('arrowKeyPress', { clientId: clientId, direction: 'right' });
       }
     }
+
   };
 
   // Add event listener only once, outside of any useEffect hooks

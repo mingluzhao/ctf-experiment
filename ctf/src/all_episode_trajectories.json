@@ -1,1 +1,1 @@
-{"agent": [{"id": "a1", "row": 6, "col": 9, "direction": 0}, {"id": "a2", "row": 7, "col": 5, "direction": 3}], "obstacle": [{"id": "o1", "row": 0, "col": 4}, {"id": "o2", "row": 9, "col": 5}], "flag": [{"id": "f1", "row": 2, "col": 1}, {"id": "f2", "row": 5, "col": 9}]}
+{"agent": [], "obstacle": [{"id": "o1", "row": 6, "col": 2}, {"id": "o2", "row": 7, "col": 6}], "flag": [{"id": "f1", "row": 7, "col": 1}, {"id": "f2", "row": 5, "col": 4}]}

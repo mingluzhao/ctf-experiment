@@ -4,7 +4,8 @@ import sys
 import time
 
 grid_size = 10 
-movement_coords = [[0,1], [1,0], [0,-1], [-1,0]]
+movement_coords = [[0,-1], [1,0], [0,1], [-1,0]]
+possible_moves = ["forward", "backward", "turn_r", "turn_l"] 
 
 UP = 0
 RIGHT = 1
@@ -16,23 +17,12 @@ class Game: # each state stores the positions, reward, action, and terminal stat
     
     # def __init__(self, agent_count, obstacle_count, flag_count, action_cost, goal_reward):
 
+    #reset: reset the state to a optionally specified state
+
     def __init__(self, action_cost, goal_reward):
         # state dictionary : agent, obstacle, flag -> list of coordinates 
         self.state_dict = {
-            "agent": [
-                {
-                    "id": "a1",
-                    "row": random.randint(0, 9),
-                    "col": random.randint(0, 9),
-                    "direction": random.randint(0,3)
-                },
-                {
-                    "id": "a2",
-                    "row": random.randint(0, 9),
-                    "col": random.randint(0, 9),
-                    "direction": random.randint(0,3)
-                }
-            ],
+            "agent": [],
             "obstacle": [
                 {
                     "id": "o1",
@@ -172,11 +162,9 @@ class Game: # each state stores the positions, reward, action, and terminal stat
 # choose a random move from the possible moves (up, down, left, right, stay)
 def policy_random(state):
     agent_actions = []
-    possible_moves = ["forward", "backward", "turn_r", "turn_l"] 
 
     for agent in state.state_dict["agent"]:
-        agent_actions.append(random.choice(possible_moves))
-    
+        agent_actions.append(random.randint(0, 3))
     return agent_actions
 
 def main():
@@ -194,7 +182,7 @@ def main():
             #print(game.state_dict)
             f.write(json_string)
         
-        time.sleep(1)
+        time.sleep(0.1)
 
 if __name__ == '__main__':
     main()
