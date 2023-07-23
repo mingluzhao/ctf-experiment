@@ -1,71 +1,58 @@
+from game import Game  # The Game class you've implemented
 import socketio
 import eventlet
 import json
-from flask import Flask
-from game import *
+import time
+import threading
+from constants import *
 
-sio = socketio.Server(cors_allowed_origins='*')
+sio = socketio.Server(cors_allowed_origins="*")  # Allowing all origins for simplicity
+app = socketio.WSGIApp(sio)
 
-client_order = {}
-next_order_num = 0
+game = Game(-1, 10, init_state)
 
-game = Game(-1, 10)
-init_json_string = json.dumps(game.state_dict)
+clients = []
+client_to_agent = {}
+actions = [None, None, None, None]
 
-with open('../ctf/src/all_episode_trajectories.json', 'w') as f:
-    f.write(init_json_string)
-
-@sio.on('connect')
+@sio.event
 def connect(sid, environ):
-    # Store the client ID and order of arrival in the client_order map
-    print('Client', sid)
+    if len(client_to_agent) < 2:  # Only allow two clients
+        client_to_agent[sid] = len(client_to_agent)
+        sio.emit('assign_agent', {'agent_id': client_to_agent[sid]}, room=sid)
+        print(f"Client {sid} connected and assigned agent {client_to_agent[sid]}")
+        if len(client_to_agent) == 1:
+            sio.start_background_task(game_loop)
+    else:
+        print("Connection attempt rejected. Maximum clients reached.")
+        sio.disconnect(sid)
 
-def emit_game_state():
-    json_string = json.dumps(game.state_dict)
-    with open('./all_episode_trajectories.json', 'w') as f:
-        f.write(json_string)
-    sio.emit('updateState', json_string)  # Emit the updated state to all clients
-    if game.is_terminal():
-        emit_game_over()
-
-def emit_game_over():
-    print("game over!")
-    sio.emit('gameOver')
-
-@sio.on('addNewAgent')
-def addagent(sid, data):
-    global next_order_num
-    client_id = data['clientId']
-    client_order[client_id] = next_order_num
-    next_order_num += 1
-    game.add_agent(client_id)
-    print("Agent added with client ID: " + client_id)
-    emit_game_state()
-
-@sio.on('arrowKeyPress')
-def keydown(sid, data):
-    if game.is_terminal():
-        return
-    direction = data['direction']
-    player_id = data['clientId']
-    print(game.state_dict)
-    if direction == 'left':
-        game.transition([client_order[player_id], "turn_l"])
-    elif direction == 'right':
-        game.transition([client_order[player_id], "turn_r"])
-    elif direction == 'up':
-        game.transition([client_order[player_id], "forward"])
-    elif direction == 'down':
-        game.transition([client_order[player_id], "backward"])
-
-    emit_game_state()
-
-def main():
-    app = socketio.WSGIApp(sio)
-    print('Server started on port 8080')
-    #eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)
-    eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 8080)), app)
+@sio.event
+def action(sid, data):
+    print('adding action!')
+    agent_id = client_to_agent[sid]
+    action = data['action']
     
+    # Save the action if it's the first one received in the collection period
+    if actions[agent_id] is None:
+        actions[agent_id] = action
+
+def game_loop():
+    print("starting loop!")
+    while True:
+        # Let the agents move
+        global actions
+        print(actions)
+        game.transition(actions)
+        actions = [None, None, None, None]
+        
+        # Broadcast updated state to all clients
+        print('emitting state')
+        sio.emit('updateState', json.dumps(game.state_dict))
+        
+        # Wait for 0.5 seconds (the collection period)
+        sio.sleep(0.5)
+
 if __name__ == '__main__':
-    main()
-    # Start the server on port 5000
+    eventlet.wsgi.server(eventlet.listen(('', 8080)), app)
+    #eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)

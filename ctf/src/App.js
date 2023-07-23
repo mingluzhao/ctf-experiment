@@ -11,79 +11,64 @@ const App = () => {
   const [agents, setAgents] = useState([]);
   const [obstacles, setObstacles] = useState([]);
   const [flags, setFlags] = useState([]);
+
   const [clientId, setClientId] = useState('');
-  const [IdInit, setIdInit] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
-    // Listen for the "connect" event, which is emitted when the socket connection is established
     socket.on('connect', () => {
       console.log('Connected to server');
-      if (!IdInit) {
-        setClientId(socket.id); // Set the client ID state when the socket connects
-        setIdInit(true); // Set IdInit to true so that the clientId is not updated again
-        socket.emit('addNewAgent', { clientId: socket.id });
-        console.log('Agent added: ' + socket.id);
-      }
-    });
+      
+      setClientId(socket.id); // Set the client ID state when the socket connects      
+    }); 
 
     // Listen for the "updateState" event, which is emitted when the server sends a state update
     socket.on('updateState', (message) => {
       console.log('Update state message:', message);
       const parsedMessage = JSON.parse(message);
-      const { agent, obstacle, flag } = parsedMessage;
+      const {agent, obstacle, flag } = parsedMessage;
     
       console.log('Parsed agents:', agent);
       setAgents(agent || []);
       setObstacles(obstacle || []);
       setFlags(flag || []);
     });    
-  }, []);
 
-  socket.on('gameOver', () => {
-    console.log('game is over')
-    setGameOver(true);
-  });
+
+    return () => {
+      socket.disconnect();
+    };
+
+  }, []);
   
   const getAngle = (direction) => {
     const angle = parseInt(direction) * 90;
     return angle;
   };
 
-  const handleKeyDown = (event, clientId) => {
-    event.preventDefault(); // prevent the default behavior of the event
-
-    if (clientId === '') {
-      return;
-    }
-    console.log('Key pressed');
-    if (gameOver) return;
-
-    if (socket.id === clientId) {
-      if (event.key === 'ArrowUp') {
-        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'up' });
-      } 
-      else if (event.key === 'ArrowDown') {
-        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'down' });
-      } 
-      else if (event.key === 'ArrowLeft') {
-        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'left' });
-      } 
-      else if (event.key === 'ArrowRight') {
-        socket.emit('arrowKeyPress', { clientId: clientId, direction: 'right' });
+  // Add event listener only once, outside of any useEffect hooks
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      console.log('key pressed: ', e.key)
+      const keyToAction = {
+        'w': 'forward',
+        's': 'backward',
+        'a': 'left',
+        'd': 'right',
+      };
+  
+      const action = keyToAction[e.key];
+      if (action) {
+        // Emit the action event to the server
+        socket.emit('action', { action: action });
       }
     }
 
-  };
-
-  // Add event listener only once, outside of any useEffect hooks
-  useEffect(() => {
     document.addEventListener('keydown', (event) => handleKeyDown(event, clientId));
 
     return () => {
       document.removeEventListener('keydown', (event) => handleKeyDown(event, clientId));
     };
-  }, [clientId]); // Add empty dependency array to run the effect only once
+  }, []); // Add empty dependency array to run the effect only once
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'; // prevent scrolling
@@ -104,7 +89,7 @@ const App = () => {
           agentCoords={agents}
           flagCoords={flags}
         />
-      }
+      }       
       {agents.map(agent => (
         <Agent
           key={agent.id}
