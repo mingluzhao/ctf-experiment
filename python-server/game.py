@@ -42,7 +42,9 @@ class Game:
                 return False
             elif 'direction' in occupied:  # if spot is occupied by another agent
                 return False
-            else:  # if spot is occupied by an obstacle or flag
+            elif occupied['id'][0] == 'f': # if spot occupied by flag, continue
+                pass
+            else:  # if spot is occupied by an obstacle
                 return False
         agent['row'] = row
         agent['col'] = col
