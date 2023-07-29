@@ -24,10 +24,12 @@ function StartScreen({ onStart, onJoin }) {
   useEffect(() => {
     socket.on('room_created', (data) => {
       onStart(mode, data.roomID);
+      setWaitingForPlayers(true);
     });
     // Handle room join confirmation
     socket.on('join_confirmed', (data) => {
       onJoin(data.mode, data.roomID);
+      setWaitingForPlayers(true);
     });
     // Handle start game
     socket.on('start-game', (data) => {
@@ -55,6 +57,13 @@ function StartScreen({ onStart, onJoin }) {
   );
 }
 
+const GameOverScreen = ({ onPlayAgain }) => (
+  <div>
+    <h1>Game Over!</h1>
+    <button onClick={onPlayAgain}>Play again</button>
+  </div>
+);
+
 const App = () => {
   const [agents, setAgents] = useState([]);
   const [obstacles, setObstacles] = useState([]);
@@ -62,6 +71,8 @@ const App = () => {
 
   const [gameMode, setGameMode] = useState(null);
   const [gameRoom, setGameRoom] = useState(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
 
   const gameRoomRef = useRef(null);
 
@@ -69,12 +80,26 @@ const App = () => {
   const startGame = (mode, roomID) => {
     setGameMode(mode);
     setGameRoom(roomID);
+    setGameStarted(false);
   }
   
   const joinGame = (mode, roomID) => {
     setGameMode(mode);
     setGameRoom(roomID);
+    setGameStarted(false);
   }
+
+  useEffect(() => {
+    socket.on('start-game', () => {
+      console.log('Game has started');
+      setGameStarted(true);
+    });
+
+    socket.on('game-over', () => {
+      console.log('Game is over');
+      setGameOver(true);
+    });
+  }, []);
 
   useEffect(() => {
     gameRoomRef.current = gameRoom;
@@ -158,9 +183,18 @@ const App = () => {
   const rows = 10;
   const cols = 10;
 
-  if (!gameMode) {
+  const playAgain = () => {
+    setGameOver(false);
+    setGameStarted(false);
+  };
+
+  if (!gameStarted) {
     console.log('displaying start screen!')
     return <StartScreen onStart={startGame} onJoin={joinGame} />;
+  }
+  else if (gameOver) {
+    console.log('displaying game over screen!')
+    return <GameOverScreen onPlayAgain={playAgain} />;
   }
   else{
     console.log('displaying game!')

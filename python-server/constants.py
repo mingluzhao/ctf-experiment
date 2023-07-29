@@ -7,28 +7,28 @@ init_state = {
                     "id": 0,
                     "row": 0,
                     "col": 0,
-                    "team": "red",
+                    "color": "red",
                     "direction": 1
                 },
                 {
                     "id": 1,
                     "row": 0,
                     "col": 9,
-                    "team": "red",
+                    "color": "red",
                     "direction": 3
                 },
                 {
                     "id": 2,
                     "row": 9,
                     "col": 0,
-                    "team": "blue",
+                    "color": "blue",
                     "direction": 1
                 },
                 {
                     "id": 3,
                     "row": 9,
                     "col": 9,
-                    "team": "blue",
+                    "color": "blue",
                     "direction": 3
                 }
             ],

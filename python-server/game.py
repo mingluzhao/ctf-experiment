@@ -99,7 +99,7 @@ class Game:
         rewards = []
         for agent in self.state_dict['agent']:
             agent_reward = self.action_cost
-            for flag in self.state_dict['flags']:
+            for flag in self.state_dict['flag']:
                 if agent['row'] == flag['row'] and agent['col'] == flag['col'] and agent['color'] != flag['color']:
                     agent_reward = self.goal_reward
             rewards.append(agent_reward)
@@ -108,7 +108,7 @@ class Game:
     
     def is_terminal(self):
         for agent in self.state_dict['agent']:
-            for flag in self.state_dict['flags']:
+            for flag in self.state_dict['flag']:
                 if agent['row'] == flag['row'] and agent['col'] == flag['col'] and agent['color'] != flag['color']:
                     return True
         return False

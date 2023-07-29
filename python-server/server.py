@@ -142,6 +142,13 @@ def game_loop(roomID):
         print('emitting state')
         sio.emit('updateState', json.dumps({'roomID': roomID, 'state': game.state_dict}),  room = roomID)
         
+        # Check if the game is over
+        if game.is_terminal():
+            print('game over')
+            sio.emit('game-over', room=roomID)
+            del games[roomID]
+            break
+
         # Wait for 0.5 seconds (the collection period)
         sio.sleep(0.5)
 
