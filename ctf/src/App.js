@@ -2,14 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import GameBoard from './GameBoard';
 import Agent from './Agent';
 import { io } from 'socket.io-client';
-import agentImg from './agent.png';
+import agentRed from './redagent.png';
+import agentBlue from './blueagent.png';
+
+const agentImages = {
+  'red': agentRed,
+  'blue': agentBlue,
+  // other colors
+};
 
 //const socket = io('http://128.97.30.83:8080');
 const socket = io('http://localhost:8080');
 
-function StartScreen({ onStart, onJoin }) {
+function StartScreen({ onStart, onJoin, roomID }) {
   const [mode, setMode] = useState("random");
-  const [roomID, setRoomID] = useState("");
+  const [inputRoomID, setInputRoomID] = useState("");
   const [waitingForPlayers, setWaitingForPlayers] = useState(false);
 
   const createRoom = () => {
@@ -17,7 +24,7 @@ function StartScreen({ onStart, onJoin }) {
   };
 
   const joinRoom = () => {
-    socket.emit('join_room', { roomID: roomID }); // Emit the join_room event to the server
+    socket.emit('join_room', { roomID: inputRoomID }); // Emit the join_room event to the server
   };
 
   // Listen for server to send room ID when creating a room
@@ -39,12 +46,12 @@ function StartScreen({ onStart, onJoin }) {
 
   if (waitingForPlayers) {
     console.log('waiting for players')
-    return <p>Waiting for players to join...</p>
+    return <p>Waiting for players to join... ROOM: {roomID}</p>
   }
 
   return (
     <div>
-      <input type="text" placeholder="Room ID" value={roomID} onChange={e => setRoomID(e.target.value)} />
+      <input type="text" placeholder="Room ID" value={inputRoomID} onChange={e => setInputRoomID(e.target.value)} />
       <button onClick={joinRoom}>Join</button>
       <br />
       <select onChange={e => setMode(e.target.value)} value={mode}>
@@ -190,7 +197,7 @@ const App = () => {
 
   if (!gameStarted) {
     console.log('displaying start screen!')
-    return <StartScreen onStart={startGame} onJoin={joinGame} />;
+    return <StartScreen onStart={startGame} onJoin={joinGame} roomID={gameRoom} />;
   }
   else if (gameOver) {
     console.log('displaying game over screen!')
@@ -209,18 +216,21 @@ const App = () => {
             flagCoords={flags}
           />
         }       
-        {agents.map(agent => (
-          <Agent
-            key={agent.id}
-            id={agent.id}
-            src={agentImg}
-            position={{
-              top: `${middleY - (rows/2 * 40) + 40 * agent.row + 25}px`,
-              left: `${middleX - (cols/2 * 40) + 40 * agent.col + 20}px`
-            }}
-            direction={getAngle(agent.direction)}
-          />
-        ))}
+        {agents.map(agent => {
+          const agentImg = agentImages[agent.color];
+          return (
+            <Agent
+              key={agent.id}
+              id={agent.id}
+              src={agentImg} // now this is dynamic based on the color of the agent
+              position={{
+                top: `${middleY - (rows/2 * 40) + 40 * agent.row + 25}px`,
+                left: `${middleX - (cols/2 * 40) + 40 * agent.col + 20}px`
+              }}
+              direction={getAngle(agent.direction)}
+            />
+          );
+        })}
       </div>
     );
   }
