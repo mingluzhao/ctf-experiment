@@ -5,12 +5,11 @@ import json
 import random
 import time
 import threading
+import secrets
 from constants import *
 
 sio = socketio.Server(cors_allowed_origins="*")  # Allowing all origins for simplicity
 app = socketio.WSGIApp(sio)
-
-next_room_id = 0
 
 games = {}
 gamestatus = {}
@@ -63,11 +62,13 @@ def disconnect(sid):
 
 @sio.event
 def create_room(sid, data):
-    # generate roomID, get game mode
-    global next_room_id
-    roomID = str(next_room_id)
+    # generate roomID
+    roomID = secrets.token_hex(5)
+    while roomID in games:  # regenerate the roomID if it's already in use
+        roomID = secrets.token_hex(5)
+
+    # get game mode
     mode = data['mode']
-    next_room_id += 1
 
     # create the room
     sio.enter_room(sid, roomID)
