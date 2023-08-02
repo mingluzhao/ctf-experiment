@@ -13,18 +13,49 @@ class Game:
         self.action_cost = action_cost # cost of an action (constant)
         self.goal_reward = goal_reward # reward for reaching the goal (constant)
         self.terminal = False          # if the game has ended or not
-        self.agent_count = 0
 
-    #add new agents to the game
-    def add_agent(self, client_id):
-        self.agent_count += 1
-        new_agent = {
-            "id": f"a{self.agent_count}",
-            "row": random.randint(0, 9),
-            "col": random.randint(0, 9),
-            "direction": random.randint(0,3)
-        }
-        self.state_dict["agent"].append(new_agent)
+        self.grid = [['_' for _ in range(grid_size)] for _ in range(grid_size)]
+        
+        for item_type in init_dict:
+            for item in init_dict[item_type]:
+                if item_type == 'agent':
+                    self.grid[item['row']][item['col']] = 'a' + item['color'][0]
+                elif item_type == 'flag':
+                    self.grid[item['row']][item['col']] = 'f' + item['color'][0]
+                elif item_type == 'obstacle':
+                    self.grid[item['row']][item['col']] = 'o'
+    
+    def update_grid(self):
+        self.grid = [['_' for _ in range(10)] for _ in range(10)]
+        for item_type in self.state_dict:
+            for item in self.state_dict[item_type]:
+                if item_type == 'agent':
+                    self.grid[item['row']][item['col']] = 'a' + item['color'][0]
+                elif item_type == 'flag':
+                    self.grid[item['row']][item['col']] = 'f' + item['color'][0]
+                elif item_type == 'obstacle':
+                    self.grid[item['row']][item['col']] = 'o'
+    
+    def observe(self, agent):
+        view = [['x' for _ in range(3)] for _ in range(3)]
+        direction = agent['direction']
+        row, col = agent['row'], agent['col']
+
+        # Calculate the offsets based on the direction the agent is facing
+        offsets = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
+        dx, dy = offsets[direction]
+
+        # Start from the square in front of the agent
+        for i in range(3):
+            for j in range(3):
+                x = row + dx*(i-1)
+                y = col + dy*(j-1)
+                
+                # Check if coordinates are inside the grid
+                if 0 <= x < 10 and 0 <= y < 10:
+                    view[i][j] = self.grid[x][y]
+                    
+        return view
 
     def find_by_position(self, row, col):
         for items in self.state_dict.values():
@@ -69,6 +100,8 @@ class Game:
         random.shuffle(new_positions)
         for agent, new_row, new_col in new_positions:
             self.move(agent, new_row, new_col)
+        
+        self.update_grid()
     
     def calculate_forward_position(self, agent):
         direction = agent['direction']
@@ -115,8 +148,6 @@ class Game:
     
     def reset(self):
         self.state_dict = copy.deepcopy(self.init_dict)
-
-
 
 # choose a random move from the possible moves (up, down, left, right, stay)
 def policy_random(state):
