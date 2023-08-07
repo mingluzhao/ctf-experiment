@@ -214,6 +214,7 @@ const App = () => {
             obstacleCoords={obstacles}
             agentCoords={agents}
             flagCoords={flags}
+            activePlayerTeam='red'
           />
         }       
         {agents.map(agent => {

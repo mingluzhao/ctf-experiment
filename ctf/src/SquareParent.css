@@ -32,7 +32,7 @@
   bottom: 0;
   width: 40px;
   height: 40px;
-  background-color: #000;
+  background-color: #808080;
   z-index: 2;
   margin: 0; /* remove any margin */
   padding: 0; /* remove any padding */
@@ -42,4 +42,8 @@
   width: 40px;
   height: 40px;
   background-size: cover;
+}
+
+.non-visible {
+  background-color: rgb(0, 0, 0);
 }

@@ -180,6 +180,8 @@ def run(num_episodes, max_steps):
             # Append information to trajectory
 
             # Keep track of trajectory
+            # state, obv, moves, reward, next_state, is_terminal
+            # obv is array of observations
             eps_traj.append([state, moves, reward, next_state, is_terminal])
 
             # Update the current state
