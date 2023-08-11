@@ -14,11 +14,13 @@ gamestatus = {}
 
 client_to_room = {}
 room_to_client = {}
+client_to_color = {}
 
 client_to_agent = {}
 actions = {}
 
 clients = []
+
 
 @sio.event
 def connect(sid, environ):
@@ -50,6 +52,7 @@ def disconnect(sid):
         if client_to_agent.get(roomID) and sid in client_to_agent[roomID]:
             del client_to_agent[roomID][sid]
         del client_to_room[sid]
+        del client_to_color[sid]
         room_to_client[roomID].remove(sid)
 
         #check if the room is now empty   
@@ -89,16 +92,24 @@ def create_room(sid, data):
     actions[roomID] = [None, None, None, None]
 
     print("created room with ID ", roomID)
-    sio.emit('room_created', {'roomID': roomID}, room=sid)
+    sio.emit('room_created', {'roomID': roomID},  room=sid)
 
     if mode == 'random':
+        client_to_color[sid] = ['red', 'blue']
+        sio.emit('color-assign', client_to_color) # Emit start-game to the room
+
         sio.emit('start-game', room=roomID) # Emit start-game to the room
         gamestatus[roomID] = 'running'
         sio.start_background_task(game_loop, roomID)
     else:
         client_to_agent[roomID] = {}
         client_to_agent[roomID][sid] = 0
+
+        client_to_color[sid] = ['red']
+        sio.emit('color-assign', client_to_color)
+
         print('client controlling agent: ', 0)
+
 
 @sio.event
 def join_room(sid, data):
@@ -118,6 +129,9 @@ def join_room(sid, data):
 
         client_to_agent[roomID][sid] = len(room_to_client[roomID])
         print('client controlling agent: ', len(room_to_client[roomID]))
+
+        client_to_color[sid] = ['red'] if len(room_to_client[roomID]) == 1 else ['blue']
+        sio.emit('color-assign', client_to_color) # Emit start-game to the room
 
         client_to_room[sid] = roomID
         room_to_client[roomID].append(sid)
@@ -205,7 +219,7 @@ def game_loop(roomID):
     
     # delete room -> client connections
     del room_to_client[roomID]
-
+    
     # delete client -> agent connections
     if roomID in client_to_agent:
         del client_to_agent[roomID]

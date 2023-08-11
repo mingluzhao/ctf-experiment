@@ -72,9 +72,13 @@ const GameOverScreen = ({ onPlayAgain }) => (
 );
 
 const App = () => {
+  const [socketId, setSocketId] = useState(null);
+
   const [agents, setAgents] = useState([]);
   const [obstacles, setObstacles] = useState([]);
   const [flags, setFlags] = useState([]);
+
+  const [colors, setColors] = useState({})
 
   const [gameMode, setGameMode] = useState(null);
   const [gameRoom, setGameRoom] = useState(null);
@@ -97,6 +101,14 @@ const App = () => {
   }
 
   useEffect(() => {
+    console.log('player colors', colors);
+  }, [colors]);
+
+  useEffect(() => {
+    socket.on('color-assign', (data) => {
+      setColors(data)
+    });
+
     socket.on('start-game', () => {
       console.log('Game has started');
       setGameStarted(true);
@@ -114,6 +126,7 @@ const App = () => {
 
   useEffect(() => {
     socket.on('connect', () => {
+      setSocketId(socket.id);
       console.log('Connected to server');
     }); 
 
@@ -214,7 +227,7 @@ const App = () => {
             obstacleCoords={obstacles}
             agentCoords={agents}
             flagCoords={flags}
-            activePlayerTeam='red'
+            activePlayerTeam= {colors[socketId]}
           />
         }       
         {agents.map(agent => {
