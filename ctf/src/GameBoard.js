@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
 
+import Agent from './Agent';
+import agentRed from './redagent.png';
+import agentBlue from './blueagent.png';
+
+const agentImages = {
+  'red': agentRed,
+  'blue': agentBlue,
+  // other colors
+};
+
 const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, activePlayerTeam }) => {
   const [squares, setSquares] = useState([]);
   console.log(activePlayerTeam[0])
@@ -80,7 +90,7 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, 
       }
     }
     return squares;
-  };  
+  }; 
 
   return (
     <div

@@ -213,6 +213,42 @@ const App = () => {
     setGameStarted(false);
   };
 
+  const isVisible = (row, col) => {
+    if (colorToID[gameRoomRef.current][socketId].length === 4){
+      return true;
+    }
+    for (let agent of agents.filter(a => colorToID[gameRoomRef.current][socketId].includes(a.id))) {
+      if (agent.row === row && agent.col === col){
+        return true;
+      }
+      switch (agent.direction) {
+        case 0: // up
+          if (row <= agent.row - 1 && row >= agent.row - 3 && col >= agent.col - 1 && col <= agent.col + 1){
+            return true;
+          }
+          break;
+        case 1: // right
+          if (col >= agent.col + 1 && col <= agent.col + 3 && row >= agent.row - 1 && row <= agent.row + 1) {
+            return true;
+          }
+          break;
+        case 2: // down
+          if (row <= agent.row + 3 && row >= agent.row + 1 && col >= agent.col - 1 && col <= agent.col + 1) {
+            return true;
+          }
+          break;
+        case 3: // left
+          if (col >= agent.col - 3 && col <= agent.col - 1 && row >= agent.row - 1 && row <= agent.row + 1) {
+            return true;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    return false;
+  };
+
   if (!gameStarted) {
     console.log('displaying start screen!')
     return <StartScreen onStart={startGame} onJoin={joinGame} roomID={gameRoom} />;
@@ -237,18 +273,21 @@ const App = () => {
         }       
         {agents.map(agent => {
           const agentImg = agentImages[agent.color];
-          return (
-            <Agent
-              key={agent.id}
-              id={agent.id}
-              src={agentImg} // now this is dynamic based on the color of the agent
-              position={{
-                top: `${middleY - (rows/2 * 40) + 40 * agent.row + 25}px`,
-                left: `${middleX - (cols/2 * 40) + 40 * agent.col + 20}px`
-              }}
-              direction={getAngle(agent.direction)}
-            />
-          );
+          const visible = isVisible(agent.row, agent.col)
+          if (visible){
+            return (
+              <Agent
+                key={agent.id}
+                id={agent.id}
+                src={agentImg} // now this is dynamic based on the color of the agent
+                position={{
+                  top: `${middleY - (rows/2 * 40) + 40 * agent.row + 25}px`,
+                  left: `${middleX - (cols/2 * 40) + 40 * agent.col + 20}px`
+                }}
+                direction={getAngle(agent.direction)}
+              />
+            );
+          }
         })}
       </div>
     );
