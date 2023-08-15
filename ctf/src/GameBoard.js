@@ -3,7 +3,7 @@ import SquareParent from './SquareParent';
 
 const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, activePlayerTeam }) => {
   const [squares, setSquares] = useState([]);
-  console.log(activePlayerTeam)
+  console.log(activePlayerTeam[0])
   // Initialize the squares state with numRows x numCols empty objects
   useEffect(() => {
     const initialSquares = Array.from({ length: numRows }, () =>
@@ -13,7 +13,7 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, 
   }, [numRows, numCols]);
 
   const isVisible = (row, col) => {
-    for (let agent of agentCoords.filter(a => activePlayerTeam.includes(a.color))) {
+    for (let agent of agentCoords.filter(a => activePlayerTeam.includes(a.id))) {
       switch (agent.direction) {
         case 0: // up
           if (agent.row >= row && agent.row - row <= 2 && col > agent.col - 1 && col <= agent.col + 2) {

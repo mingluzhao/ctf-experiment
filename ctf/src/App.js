@@ -79,6 +79,7 @@ const App = () => {
   const [flags, setFlags] = useState([]);
 
   const [colors, setColors] = useState({})
+  const [colorToID, setColorToID] = useState({})
 
   const [gameMode, setGameMode] = useState(null);
   const [gameRoom, setGameRoom] = useState(null);
@@ -101,12 +102,16 @@ const App = () => {
   }
 
   useEffect(() => {
-    console.log('player colors', colors);
-  }, [colors]);
+    console.log('player colors', colorToID);
+  }, [colorToID]);
 
   useEffect(() => {
-    socket.on('color-assign', (data) => {
+    /*socket.on('color-assign', (data) => {
       setColors(data)
+    });
+    */
+    socket.on('client_ids', (data) => {
+      setColorToID(data)
     });
 
     socket.on('start-game', () => {
@@ -227,7 +232,7 @@ const App = () => {
             obstacleCoords={obstacles}
             agentCoords={agents}
             flagCoords={flags}
-            activePlayerTeam= {colors[socketId]}
+            activePlayerTeam= {colorToID[gameRoomRef.current][socketId]}
           />
         }       
         {agents.map(agent => {

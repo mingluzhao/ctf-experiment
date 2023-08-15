@@ -96,17 +96,23 @@ def create_room(sid, data):
 
     if mode == 'random':
         client_to_color[sid] = ['red', 'blue']
-        sio.emit('color-assign', client_to_color) # Emit start-game to the room
+        client_to_agent[roomID] = {}
+        client_to_agent[roomID][sid] = [0, 1, 2, 3]
+
+        # sio.emit('color-assign', client_to_color) # Emit start-game to the room
+        sio.emit('client_ids', client_to_agent)
 
         sio.emit('start-game', room=roomID) # Emit start-game to the room
         gamestatus[roomID] = 'running'
         sio.start_background_task(game_loop, roomID)
     else:
         client_to_agent[roomID] = {}
-        client_to_agent[roomID][sid] = 0
+        client_to_agent[roomID][sid] = [0]
 
         client_to_color[sid] = ['red']
-        sio.emit('color-assign', client_to_color)
+        # sio.emit('color-assign', client_to_color)
+        sio.emit('client_ids', client_to_agent)
+
 
         print('client controlling agent: ', 0)
 
@@ -127,11 +133,12 @@ def join_room(sid, data):
     if len(room_to_client[roomID]) < maxclients and gamestatus[roomID] == 'pending':
         sio.enter_room(sid, roomID)
 
-        client_to_agent[roomID][sid] = len(room_to_client[roomID])
+        client_to_agent[roomID][sid] = [len(room_to_client[roomID])]
         print('client controlling agent: ', len(room_to_client[roomID]))
 
         client_to_color[sid] = ['red'] if len(room_to_client[roomID]) == 1 else ['blue']
-        sio.emit('color-assign', client_to_color) # Emit start-game to the room
+        # sio.emit('color-assign', client_to_color) # Emit start-game to the room
+        sio.emit('client_ids', client_to_agent)
 
         client_to_room[sid] = roomID
         room_to_client[roomID].append(sid)
@@ -162,7 +169,7 @@ def action(sid, data):
 
     # get ID of agent to be moved
     # print('adding action!')
-    agent_id = client_to_agent[roomID][sid]
+    agent_id = client_to_agent[roomID][sid][0]
     # print(roomID, action)
     
     # Save the action if it's the first one received in the collection period
