@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
 
-import Agent from './Agent';
-import agentRed from './redagent.png';
-import agentBlue from './blueagent.png';
-
-const agentImages = {
-  'red': agentRed,
-  'blue': agentBlue,
-  // other colors
-};
-
 const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, activePlayerTeam }) => {
   const [squares, setSquares] = useState([]);
   console.log(activePlayerTeam[0])
@@ -62,7 +52,7 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, 
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass obstacle prop as true to SquareParent component */}
-              <SquareParent agent={false} obstacle={true} flag={false} beam={false} border={false} visible={visible}/>
+              <SquareParent obstacle={true} flag={false} border={false} visible={visible}/>
             </div>
           );
         // Render the flag component for any square that matches the provided agent coordinates
@@ -70,20 +60,20 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, 
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass flag prop as true to SquareParent component */}
-              <SquareParent agent={false} obstacle={false} flag={true} beam={false} border={false} visible={visible}/>
+              <SquareParent obstacle={false} flag={true} border={false} visible={visible}/>
             </div>
           );
         } else if (row === 0 || row === numRows-1 || col === 0 || col === numCols-1) {
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass obstacle prop as true to SquareParent component */}
-              <SquareParent agent={false} obstacle={false} flag={false} beam={false} border={true} visible={true}/>
+              <SquareParent obstacle={false} flag={false} border={true} visible={true}/>
             </div>
           );
         } else {
           squares.push(
             <div key={`${row}-${col}`}>
-              <SquareParent agent={false} obstacle={false} flag={false} beam={false} border={false} visible={visible}/>
+              <SquareParent obstacle={false} flag={false} border={false} visible={visible}/>
             </div>
           );
         }

@@ -4,7 +4,6 @@ import flagImg from './flag.png';
 
 const SquareParent = ({ agent, obstacle, flag, beam, border, visible }) => {
   const [squareStates, setSquareStates] = useState({
-    agent: agent,
     obstacle: obstacle,
     flag: flag,
     beam: beam,

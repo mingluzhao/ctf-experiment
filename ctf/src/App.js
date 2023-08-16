@@ -5,18 +5,22 @@ import { io } from 'socket.io-client';
 import agentRed from './redagent.png';
 import agentBlue from './blueagent.png';
 
+//determines agent image
 const agentImages = {
   'red': agentRed,
   'blue': agentBlue,
-  // other colors
 };
 
 //const socket = io('http://128.97.30.83:8080');
 const socket = io('http://localhost:8080');
 
-function StartScreen({ onStart, onJoin, roomID }) {
+  // =======PREGAME DISPLAY=======
+  function StartScreen({ onStart, onJoin, roomID }) {
+  // game mode: default is random
   const [mode, setMode] = useState("random");
   const [inputRoomID, setInputRoomID] = useState("");
+
+  // bool: are we waiting for other players or not?
   const [waitingForPlayers, setWaitingForPlayers] = useState(false);
 
   const createRoom = () => {
@@ -27,18 +31,19 @@ function StartScreen({ onStart, onJoin, roomID }) {
     socket.emit('join_room', { roomID: inputRoomID }); // Emit the join_room event to the server
   };
 
-  // Listen for server to send room ID when creating a room
+  // Listen for server to send room creation/join and start events
   useEffect(() => {
+    // handle room creation
     socket.on('room_created', (data) => {
       onStart(mode, data.roomID);
       setWaitingForPlayers(true);
     });
-    // Handle room join confirmation
+    // handle room join confirmation
     socket.on('join_confirmed', (data) => {
       onJoin(data.mode, data.roomID);
       setWaitingForPlayers(true);
     });
-    // Handle start game
+    // handle start game
     socket.on('start-game', (data) => {
       setWaitingForPlayers(false);
     });
@@ -64,31 +69,35 @@ function StartScreen({ onStart, onJoin, roomID }) {
   );
 }
 
-const GameOverScreen = ({ onPlayAgain }) => (
+  // =======GAME OVER DISPLAY=======
+  const GameOverScreen = ({ onPlayAgain }) => (
   <div>
     <h1>Game Over!</h1>
     <button onClick={onPlayAgain}>Play again</button>
   </div>
 );
 
-const App = () => {
+  // =======MAIN GAME DISPLAY=======
+  const App = () => {
   const [socketId, setSocketId] = useState(null);
 
+  // stores positions of game objects
   const [agents, setAgents] = useState([]);
   const [obstacles, setObstacles] = useState([]);
   const [flags, setFlags] = useState([]);
 
-  const [colors, setColors] = useState({})
+  // tracks active agents
   const [colorToID, setColorToID] = useState({})
 
+  // game state variables: room, mode, status
   const [gameMode, setGameMode] = useState(null);
   const [gameRoom, setGameRoom] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-
+  
   const gameRoomRef = useRef(null);
 
-
+  // =======BUTTON FUNCTIONS=======
   const startGame = (mode, roomID) => {
     setGameMode(mode);
     setGameRoom(roomID);
@@ -101,15 +110,28 @@ const App = () => {
     setGameStarted(false);
   }
 
-  useEffect(() => {
-    console.log('player colors', colorToID);
-  }, [colorToID]);
+  const playAgain = () => {
+    setGameOver(false);
+    setGameStarted(false);
+  };
 
+  // =======USEEFFECTS AND SOCKET EVENTS=======
+
+  // handle connect/disconnect
   useEffect(() => {
-    /*socket.on('color-assign', (data) => {
-      setColors(data)
-    });
-    */
+    socket.on('connect', () => {
+      setSocketId(socket.id);
+      console.log('Connected to server');
+    }); 
+
+    return () => {
+      socket.disconnect();
+    };
+
+  }, []);
+
+  // various socket events 
+  useEffect(() => {
     socket.on('client_ids', (data) => {
       setColorToID(data)
     });
@@ -125,37 +147,21 @@ const App = () => {
     });
   }, []);
 
+  // store gameRoom as reference
   useEffect(() => {
     gameRoomRef.current = gameRoom;
   }, [gameRoom]);
-
-  useEffect(() => {
-    socket.on('connect', () => {
-      setSocketId(socket.id);
-      console.log('Connected to server');
-    }); 
-
-    return () => {
-      socket.disconnect();
-    };
-
-  }, []);
   
-  const getAngle = (direction) => {
-    const angle = parseInt(direction) * 90;
-    return angle;
-  };
-
+  // handles the "updateState" event
   useEffect(() => {
-    // The function to handle the "updateState" event
     const handleUpdateState = (message) => {
       console.log('update state received!')
       const parsedMessage = JSON.parse(message);
 
       console.log('update ID: ', parsedMessage.roomID);
-      console.log('roomID: ', gameRoom);
+      console.log('roomID: ', gameRoomRef.current);
 
-      if (parsedMessage.roomID === gameRoom) {
+      if (parsedMessage.roomID === gameRoomRef.current) {
         const {agent, obstacle, flag } = parsedMessage.state;
 
         console.log('Parsed agents:', agent);
@@ -172,7 +178,7 @@ const App = () => {
     return () => {
       socket.off('updateState', handleUpdateState);
     };
-  }, [gameRoom]);  // Dependencies
+  }, [gameRoomRef]);
 
   // Add event listener only once, outside of any useEffect hooks
   useEffect(() => {
@@ -197,22 +203,19 @@ const App = () => {
     return () => {
       document.removeEventListener('keydown', (event) => handleKeyDown(event));
     };
-  }, [gameRoom]); // Add empty dependency array to run the effect only once
+  }, [gameRoomRef]);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'; // prevent scrolling
   }, []);
 
-  const middleX = window.innerWidth / 2;
-  const middleY = window.innerHeight / 2;
-  const rows = 10;
-  const cols = 10;
+  // =======OTHER UTILITY FUNCTIONS=======
 
-  const playAgain = () => {
-    setGameOver(false);
-    setGameStarted(false);
+  const getAngle = (direction) => {
+    const angle = parseInt(direction) * 90;
+    return angle;
   };
-
+  // checks if row/col of other agents are visible to curr player
   const isVisible = (row, col) => {
     if (colorToID[gameRoomRef.current][socketId].length === 4){
       return true;
@@ -248,6 +251,12 @@ const App = () => {
     }
     return false;
   };
+
+  // =======RETURN=======
+  const middleX = window.innerWidth / 2;
+  const middleY = window.innerHeight / 2;
+  const rows = 10;
+  const cols = 10;
 
   if (!gameStarted) {
     console.log('displaying start screen!')
