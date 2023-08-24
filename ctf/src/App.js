@@ -11,8 +11,8 @@ const agentImages = {
   'blue': agentBlue,
 };
 
-const socket = io('http://128.97.30.83:8080');
-//const socket = io('http://localhost:8080');
+//const socket = io('http://128.97.30.83:8080');
+const socket = io('http://localhost:8080');
 
   // =======PREGAME DISPLAY=======
   function StartScreen({ onStart, onJoin, roomID }) {
@@ -72,7 +72,7 @@ const socket = io('http://128.97.30.83:8080');
   // =======GAME OVER DISPLAY=======
   const GameOverScreen = ({ onPlayAgain }) => (
   <div>
-    <h1>Game Over!</h1>
+    <h1>Thanks for playing!</h1>
     <button onClick={onPlayAgain}>Play again</button>
   </div>
 );

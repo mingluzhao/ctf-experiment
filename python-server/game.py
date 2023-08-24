@@ -6,13 +6,17 @@ import copy
 class Game:     
     #reset: reset the state to a optionally specified state
 
-    def __init__(self, action_cost, goal_reward, init_dict):
+    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round):
         # state dictionary : agent, obstacle, flag -> list of coordinates 
         self.init_dict = copy.deepcopy(init_dict)
         self.state_dict = copy.deepcopy(init_dict)
         self.action_cost = action_cost # cost of an action (constant)
         self.goal_reward = goal_reward # reward for reaching the goal (constant)
-        self.terminal = False          # if the game has ended or not
+
+        self.max_steps = max_steps
+        self.max_round = max_round
+        self.steps = 0
+        self.round = 1
 
         self.grid = [['_' for _ in range(grid_size)] for _ in range(grid_size)]
         
@@ -102,6 +106,7 @@ class Game:
             self.move(agent, new_row, new_col)
         
         self.update_grid()
+        self.steps += 1
     
     def calculate_forward_position(self, agent):
         direction = agent['direction']
@@ -140,15 +145,24 @@ class Game:
                                                 # otherwise, for now return default action cost
     
     def is_terminal(self):
+        if self.steps == self.max_steps:
+            return True
         for agent in self.state_dict['agent']:
             for flag in self.state_dict['flag']:
                 if agent['row'] == flag['row'] and agent['col'] == flag['col'] and agent['color'] != flag['color']:
                     return True
         return False
     
+    def is_final_terminal(self):
+        if self.round > self.max_round:
+            return True
+        return False
+    
     def reset(self):
+        self.round += 1
+        self.steps = 0
         self.state_dict = copy.deepcopy(self.init_dict)
-
+    
 # choose a random move from the possible moves (up, down, left, right, stay)
 def policy_random(state):
     actions = []

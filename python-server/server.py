@@ -85,7 +85,7 @@ def create_room(sid, data):
     elif mode == 'four-player':
         maxclient = 4
 
-    game = Game(-1, 10, init_state)
+    game = Game(-1, 10, init_state, max_steps, max_round)
     gamestatus[roomID] = 'pending'
 
     games[roomID] = game, maxclient
@@ -208,10 +208,13 @@ def game_loop(roomID):
         
         # Check if the game is over, cleanup if so
         if game.is_terminal():
-            print('game over')
-            sio.emit('game-over', room=roomID)
-            gamestatus[roomID] = 'ended'
-            break
+            if game.is_final_terminal():
+                print('game over')
+                sio.emit('game-over', room=roomID)
+                gamestatus[roomID] = 'ended'
+                break
+            else:
+                game.reset()
         # Wait for 0.5 seconds (the collection period)
         sio.sleep(0.5)
     
