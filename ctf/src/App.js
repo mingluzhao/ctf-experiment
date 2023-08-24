@@ -35,7 +35,7 @@ const socket = io('http://localhost:8080');
   useEffect(() => {
     // handle room creation
     socket.on('room_created', (data) => {
-      onStart(mode, data.roomID);
+      onStart(mode, data.roomID, data.fullVis);
       setWaitingForPlayers(true);
     });
     // handle room join confirmation
@@ -94,14 +94,16 @@ const socket = io('http://localhost:8080');
   const [gameRoom, setGameRoom] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [visibility, setVisibility] = useState(false)
   
   const gameRoomRef = useRef(null);
 
   // =======BUTTON FUNCTIONS=======
-  const startGame = (mode, roomID) => {
+  const startGame = (mode, roomID, fullVis) => {
     setGameMode(mode);
     setGameRoom(roomID);
     setGameStarted(false);
+    setVisibility(fullVis)
   }
   
   const joinGame = (mode, roomID) => {
@@ -278,6 +280,7 @@ const socket = io('http://localhost:8080');
             agentCoords={agents}
             flagCoords={flags}
             activePlayerTeam= {colorToID[gameRoomRef.current][socketId]}
+            fullVisible = {visibility}
           />
         }       
         {agents.map(agent => {

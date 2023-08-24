@@ -6,7 +6,7 @@ import copy
 class Game:     
     #reset: reset the state to a optionally specified state
 
-    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round):
+    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round, full_visible):
         # state dictionary : agent, obstacle, flag -> list of coordinates 
         self.init_dict = copy.deepcopy(init_dict)
         self.state_dict = copy.deepcopy(init_dict)
@@ -17,6 +17,8 @@ class Game:
         self.max_round = max_round
         self.steps = 0
         self.round = 1
+
+        self.fill_visible = full_visible
 
         self.grid = [['_' for _ in range(grid_size)] for _ in range(grid_size)]
         
@@ -157,6 +159,9 @@ class Game:
         if self.round > self.max_round:
             return True
         return False
+    
+    def is_full_visible(self):
+        return self.fill_visible
     
     def reset(self):
         self.round += 1

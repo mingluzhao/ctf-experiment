@@ -1,7 +1,10 @@
 grid_size = 10 
 possible_moves = ["forward", "backward", "turn_r", "turn_l"] 
+
 max_steps = 30
 max_round = 5
+full_visible = False
+
 init_state = {
             "agent": [
                 {

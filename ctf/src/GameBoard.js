@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SquareParent from './SquareParent';
 
-const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, activePlayerTeam }) => {
+const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, activePlayerTeam, fullVisible}) => {
   const [squares, setSquares] = useState([]);
   console.log(activePlayerTeam[0])
   // Initialize the squares state with numRows x numCols empty objects
@@ -46,7 +46,13 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, 
     const squares = [];
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        const visible = isVisible(row, col);
+        let visible;
+        if(fullVisible){
+          visible = true
+        }
+        else{
+          visible = isVisible(row, col);
+        }
         // Render the Obstacle component for any square that matches the provided obstacle coordinates
         if (obstacleCoords.some(coord => coord.row+1 === row && coord.col+1 === col)) {
           squares.push(

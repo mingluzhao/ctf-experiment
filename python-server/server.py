@@ -85,14 +85,14 @@ def create_room(sid, data):
     elif mode == 'four-player':
         maxclient = 4
 
-    game = Game(-1, 10, init_state, max_steps, max_round)
+    game = Game(-1, 10, init_state, max_steps, max_round, full_visible)
     gamestatus[roomID] = 'pending'
 
     games[roomID] = game, maxclient
     actions[roomID] = [None, None, None, None]
 
     print("created room with ID ", roomID)
-    sio.emit('room_created', {'roomID': roomID},  room=sid)
+    sio.emit('room_created', {'roomID': roomID, 'fullVis': game.is_full_visible()},  room=sid)
 
     if mode == 'random':
         client_to_color[sid] = ['red', 'blue']
