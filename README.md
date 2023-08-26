@@ -1,6 +1,7 @@
 GENERAL GAME RULES
 - partial observability: each agent can only see the 3x3 grids in front of it
 - movement: TURN_LEFT [A], TURN_RIGHT[D], MOVE[W]
+
   
 CURRENT PROGRESS:
 - game is played with 4 agents, two on the red team, two on the blue team.
