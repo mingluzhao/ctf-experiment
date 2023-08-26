@@ -85,7 +85,8 @@ def create_room(sid, data):
     elif mode == 'four-player':
         maxclient = 4
 
-    game = Game(-1, 10, init_state, max_steps, max_round, full_visible)
+    game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle)
+    print(game.agent_trajectories)
     gamestatus[roomID] = 'pending'
 
     games[roomID] = game, maxclient
@@ -200,6 +201,7 @@ def game_loop(roomID):
         actions[roomID][(4 - num_random):] = rand_actions
 
         # transition and reset actions
+        print(game.round)
         game.transition(actions[roomID])
         actions[roomID] = [None, None, None, None]
         
@@ -212,6 +214,9 @@ def game_loop(roomID):
                 print('game over')
                 sio.emit('game-over', room=roomID)
                 gamestatus[roomID] = 'ended'
+                
+                if game.save_on():
+                    game.save(roomID)
                 break
             else:
                 game.reset()

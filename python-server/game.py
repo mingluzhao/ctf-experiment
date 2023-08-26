@@ -1,4 +1,5 @@
 import random 
+import os
 import json 
 from constants import *
 import copy
@@ -6,7 +7,7 @@ import copy
 class Game:     
     #reset: reset the state to a optionally specified state
 
-    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round, full_visible):
+    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round, full_visible, save_toggle):
         # state dictionary : agent, obstacle, flag -> list of coordinates 
         self.init_dict = copy.deepcopy(init_dict)
         self.state_dict = copy.deepcopy(init_dict)
@@ -17,6 +18,9 @@ class Game:
         self.max_round = max_round
         self.steps = 0
         self.round = 1
+        self.save_toggle = save_toggle
+
+        self.agent_trajectories = [{0: [], 1: [], 2: [], 3: []}] * self.max_round
 
         self.fill_visible = full_visible
 
@@ -88,6 +92,7 @@ class Game:
         return True
     
     def transition(self, actions):
+        original_state = copy.deepcopy(self.state_dict)
         new_positions = []
         for action, agent in zip(actions, self.state_dict['agent']):
             new_row, new_col = agent['row'], agent['col']
@@ -109,6 +114,13 @@ class Game:
         
         self.update_grid()
         self.steps += 1
+
+        rewards = self.reward()
+        for i in range(0, 4):
+            agent = self.state_dict["agent"][i]
+            action = move_map.get(actions[i], -1)
+            reward = rewards[i]
+            self.agent_trajectories[self.round - 1][i].append([self.state_dict, self.observe(agent), action, reward, original_state, self.is_terminal()])
     
     def calculate_forward_position(self, agent):
         direction = agent['direction']
@@ -156,17 +168,34 @@ class Game:
         return False
     
     def is_final_terminal(self):
-        if self.round > self.max_round:
+        if self.round >= self.max_round:
             return True
         return False
     
     def is_full_visible(self):
         return self.fill_visible
     
+    def save_on(self):
+        return self.save_toggle
+        
     def reset(self):
         self.round += 1
         self.steps = 0
         self.state_dict = copy.deepcopy(self.init_dict)
+    
+    def save(self, roomID):
+        data_directory_path = os.path.join('..', 'data')
+
+        if not os.path.exists(data_directory_path):
+            os.makedirs(data_directory_path)
+
+        for round_data in self.agent_trajectories:
+            for id in round_data:
+                file_name = str(roomID) + '_0' + str(id) + '.json'
+                file_path = os.path.join(data_directory_path, file_name)
+                with open(file_path, "w") as outfile:
+                    json.dump(round_data[id], outfile)
+        
     
 # choose a random move from the possible moves (up, down, left, right, stay)
 def policy_random(state):

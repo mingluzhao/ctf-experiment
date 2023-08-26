@@ -1,8 +1,11 @@
 grid_size = 10 
 possible_moves = ["forward", "backward", "turn_r", "turn_l"] 
 
+move_map = {'forward': 0, 'right': 1, 'backward': 2, 'left': 3}
+save_toggle = True
+
 max_steps = 30
-max_round = 5
+max_round = 2
 full_visible = False
 
 init_state = {
