@@ -52,7 +52,6 @@ def disconnect(sid):
         if client_to_agent.get(roomID) and sid in client_to_agent[roomID]:
             del client_to_agent[roomID][sid]
         del client_to_room[sid]
-        del client_to_color[sid]
         room_to_client[roomID].remove(sid)
 
         #check if the room is now empty   
@@ -96,11 +95,13 @@ def create_room(sid, data):
     sio.emit('room_created', {'roomID': roomID, 'fullVis': game.is_full_visible()},  room=sid)
 
     if mode == 'random':
-        client_to_color[sid] = ['red', 'blue']
+        client_to_color[roomID] = {}
+        client_to_color[roomID][sid] = ['red', 'blue']
+
         client_to_agent[roomID] = {}
         client_to_agent[roomID][sid] = [0, 1, 2, 3]
 
-        # sio.emit('color-assign', client_to_color) # Emit start-game to the room
+        sio.emit('color-assign', client_to_color) # Emit start-game to the room
         sio.emit('client_ids', client_to_agent)
 
         sio.emit('start-game', room=roomID) # Emit start-game to the room
@@ -110,8 +111,10 @@ def create_room(sid, data):
         client_to_agent[roomID] = {}
         client_to_agent[roomID][sid] = [0]
 
-        client_to_color[sid] = ['red']
-        # sio.emit('color-assign', client_to_color)
+        client_to_color[roomID] = {}
+        client_to_color[roomID][sid] = ['red']
+
+        sio.emit('color-assign', client_to_color)
         sio.emit('client_ids', client_to_agent)
 
 
@@ -137,8 +140,8 @@ def join_room(sid, data):
         client_to_agent[roomID][sid] = [len(room_to_client[roomID])]
         print('client controlling agent: ', len(room_to_client[roomID]))
 
-        client_to_color[sid] = ['red'] if len(room_to_client[roomID]) == 1 else ['blue']
-        # sio.emit('color-assign', client_to_color) # Emit start-game to the room
+        client_to_color[roomID][sid] = ['red'] if len(room_to_client[roomID]) == 1 else ['blue']
+        sio.emit('color-assign', client_to_color) # Emit start-game to the room
         sio.emit('client_ids', client_to_agent)
 
         client_to_room[sid] = roomID
@@ -162,7 +165,7 @@ def action(sid, data):
     action = data['action']
 
     # if game not running, return
-    if gamestatus[roomID] != 'running':
+    if roomID not in gamestatus or gamestatus[roomID] != 'running':
         return 
     # if this is a random game, return
     if sid not in client_to_agent[roomID]:
@@ -234,7 +237,10 @@ def game_loop(roomID):
     
     # delete room -> client connections
     del room_to_client[roomID]
-    
+
+    # delete client -> color for this room
+    del client_to_color[roomID]
+
     # delete client -> agent connections
     if roomID in client_to_agent:
         del client_to_agent[roomID]

@@ -95,6 +95,7 @@ const socket = io('http://localhost:8080');
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [visibility, setVisibility] = useState(false)
+  const [color, setColor] = useState(null)
   
   const gameRoomRef = useRef(null);
 
@@ -132,10 +133,18 @@ const socket = io('http://localhost:8080');
 
   }, []);
 
+  useEffect(() => {
+    console.log('player colors', color);
+  }, [color]);
+
   // various socket events 
   useEffect(() => {
     socket.on('client_ids', (data) => {
       setColorToID(data)
+    });
+
+    socket.on('color-assign', (data)=> {
+      setColor(data)
     });
 
     socket.on('start-game', () => {
@@ -218,7 +227,12 @@ const socket = io('http://localhost:8080');
     return angle;
   };
   // checks if row/col of other agents are visible to curr player
-  const isVisible = (row, col) => {
+  const isVisible = (agent) => {
+    if(sameTeam(agent)){
+      return true
+    }
+    let row = agent.row
+    let col = agent.col
     if (colorToID[gameRoomRef.current][socketId].length === 4){
       return true;
     }
@@ -254,6 +268,16 @@ const socket = io('http://localhost:8080');
     return false;
   };
 
+  const sameTeam = (agent) => {
+    let my_colors = color[gameRoomRef.current][socketId]
+    if(my_colors.includes(agent.color)){
+      return true
+    }
+    else{
+      return false
+    }
+  };
+
   // =======RETURN=======
   const middleX = window.innerWidth / 2;
   const middleY = window.innerHeight / 2;
@@ -285,7 +309,7 @@ const socket = io('http://localhost:8080');
         }       
         {agents.map(agent => {
           const agentImg = agentImages[agent.color];
-          const visible = isVisible(agent.row, agent.col)
+          const visible = isVisible(agent)
           if (visible){
             return (
               <Agent

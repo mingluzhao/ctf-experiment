@@ -58,7 +58,7 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, 
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass obstacle prop as true to SquareParent component */}
-              <SquareParent obstacle={true} flag={false} border={false} visible={visible}/>
+              <SquareParent obstacle={true} flag={false} border={false} visible={true}/>
             </div>
           );
         // Render the flag component for any square that matches the provided agent coordinates
@@ -66,7 +66,7 @@ const GameBoard = ({ numRows, numCols, obstacleCoords, agentCoords, flagCoords, 
           squares.push(
             <div key={`${row}-${col}`} style={{ position: 'relative' }}>
               {/* Pass flag prop as true to SquareParent component */}
-              <SquareParent obstacle={false} flag={true} border={false} visible={visible}/>
+              <SquareParent obstacle={false} flag={true} border={false} visible={true}/>
             </div>
           );
         } else if (row === 0 || row === numRows-1 || col === 0 || col === numCols-1) {
