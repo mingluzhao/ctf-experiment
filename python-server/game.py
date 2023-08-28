@@ -7,8 +7,10 @@ import copy
 class Game:     
     #reset: reset the state to a optionally specified state
 
-    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round, full_visible, save_toggle):
+    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round, full_visible, save_toggle, random_obstacle):
         # state dictionary : agent, obstacle, flag -> list of coordinates 
+        if random_obstacle:
+            init_dict['obstacle'] = self.generate_obstacles(num_obstacles)
         self.init_dict = copy.deepcopy(init_dict)
         self.state_dict = copy.deepcopy(init_dict)
         self.action_cost = action_cost # cost of an action (constant)
@@ -67,6 +69,21 @@ class Game:
                     
         return view
 
+    def generate_obstacles(self, num):
+        agent_coords = [(0, 0), (0, 9), (9,0), (9,9)]
+        obstacle_coords = []
+        obstacles = []
+
+        for i in range(num):
+            coord = (random.randint(0, 9),  random.randint(0, 9))
+            while coord in agent_coords or coord in obstacle_coords:
+                coord = (random.randint(0, 9),  random.randint(0, 9))
+            obstacle_coords.append(coord)
+
+            obstacles.append({'id': 'o' + str(i), 'row': coord[0], 'col': coord[1]})
+        
+        return obstacles
+            
     def find_by_position(self, row, col):
         for items in self.state_dict.values():
             for item in items:

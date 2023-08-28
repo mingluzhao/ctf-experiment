@@ -84,7 +84,7 @@ def create_room(sid, data):
     elif mode == 'four-player':
         maxclient = 4
 
-    game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle)
+    game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle, random_obstacle)
     print(game.agent_trajectories)
     gamestatus[roomID] = 'pending'
 

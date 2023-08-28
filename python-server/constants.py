@@ -7,6 +7,8 @@ save_toggle = True
 max_steps = 30
 max_round = 2
 full_visible = False
+random_obstacle = True
+num_obstacles = 8
 
 init_state = {
             "agent": [
