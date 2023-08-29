@@ -252,5 +252,5 @@ def game_loop(roomID):
     print("gamestatus: ", gamestatus)
 
 if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 8080)), app)
-    #eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)
+    #eventlet.wsgi.server(eventlet.listen(('', 8080)), app)
+    eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)
