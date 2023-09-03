@@ -2,14 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import GameBoard from './GameBoard';
 import Agent from './Agent';
 import { io } from 'socket.io-client';
-import agentRed from './redagent.png';
-import agentBlue from './blueagent.png';
 
 //determines agent image
-const agentImages = {
-  'red': agentRed,
-  'blue': agentBlue,
-};
 
 const socket = io('http://128.97.30.83:8080');
 //const socket = io('http://localhost:8080');
@@ -81,10 +75,8 @@ const socket = io('http://128.97.30.83:8080');
   const App = () => {
   const [socketId, setSocketId] = useState(null);
 
-  // stores positions of game objects
-  const [agents, setAgents] = useState([]);
-  const [obstacles, setObstacles] = useState([]);
-  const [flags, setFlags] = useState([]);
+  const [grid, setGrid] = useState([])
+  const [agents, setAgents] = useState([])
 
   // tracks active agents
   const [colorToID, setColorToID] = useState({})
@@ -137,6 +129,10 @@ const socket = io('http://128.97.30.83:8080');
     console.log('player colors', color);
   }, [color]);
 
+  useEffect(() => {
+    console.log('colortoid', colorToID);
+  }, [colorToID]);
+
   // various socket events 
   useEffect(() => {
     socket.on('client_ids', (data) => {
@@ -163,22 +159,28 @@ const socket = io('http://128.97.30.83:8080');
     gameRoomRef.current = gameRoom;
   }, [gameRoom]);
   
+  useEffect(() => {
+    console.log('Updated grid:', grid);
+  }, [grid]);
+
+  useEffect(() => {
+    console.log('agent dict:', agents);
+  }, [agents]);
+
   // handles the "updateState" event
   useEffect(() => {
     const handleUpdateState = (message) => {
       console.log('update state received!')
       const parsedMessage = JSON.parse(message);
-
+      
       console.log('update ID: ', parsedMessage.roomID);
       console.log('roomID: ', gameRoomRef.current);
 
       if (parsedMessage.roomID === gameRoomRef.current) {
-        const {agent, obstacle, flag } = parsedMessage.state;
-
-        console.log('Parsed agents:', agent);
-        setAgents(agent || []);
-        setObstacles(obstacle || []);
-        setFlags(flag || []);
+        const gameGrid = parsedMessage.grid;
+        const agentList = parsedMessage.agents;
+        setGrid(gameGrid);
+        setAgents(agentList)
       }
     };
 
@@ -220,69 +222,7 @@ const socket = io('http://128.97.30.83:8080');
     document.body.style.overflow = 'hidden'; // prevent scrolling
   }, []);
 
-  // =======OTHER UTILITY FUNCTIONS=======
-
-  const getAngle = (direction) => {
-    const angle = parseInt(direction) * 90;
-    return angle;
-  };
-  // checks if row/col of other agents are visible to curr player
-  const isVisible = (agent) => {
-    if(sameTeam(agent)){
-      return true
-    }
-    let row = agent.row
-    let col = agent.col
-    if (colorToID[gameRoomRef.current][socketId].length === 4){
-      return true;
-    }
-    for (let agent of agents.filter(a => colorToID[gameRoomRef.current][socketId].includes(a.id))) {
-      if (agent.row === row && agent.col === col){
-        return true;
-      }
-      switch (agent.direction) {
-        case 0: // up
-          if (row <= agent.row - 1 && row >= agent.row - 3 && col >= agent.col - 1 && col <= agent.col + 1){
-            return true;
-          }
-          break;
-        case 1: // right
-          if (col >= agent.col + 1 && col <= agent.col + 3 && row >= agent.row - 1 && row <= agent.row + 1) {
-            return true;
-          }
-          break;
-        case 2: // down
-          if (row <= agent.row + 3 && row >= agent.row + 1 && col >= agent.col - 1 && col <= agent.col + 1) {
-            return true;
-          }
-          break;
-        case 3: // left
-          if (col >= agent.col - 3 && col <= agent.col - 1 && row >= agent.row - 1 && row <= agent.row + 1) {
-            return true;
-          }
-          break;
-        default:
-          break;
-      }
-    }
-    return false;
-  };
-
-  const sameTeam = (agent) => {
-    let my_colors = color[gameRoomRef.current][socketId]
-    if(my_colors.includes(agent.color)){
-      return true
-    }
-    else{
-      return false
-    }
-  };
-
   // =======RETURN=======
-  const middleX = window.innerWidth / 2;
-  const middleY = window.innerHeight / 2;
-  const rows = 10;
-  const cols = 10;
 
   if (!gameStarted) {
     console.log('displaying start screen!')
@@ -296,35 +236,15 @@ const socket = io('http://128.97.30.83:8080');
     console.log('displaying game!')
     return (
       <div>
-        {agents.length > 0 && obstacles.length > 0 && flags.length > 0 &&
+        {grid.length > 0 && agents.length > 0 &&
           <GameBoard
-            numRows={rows+2}
-            numCols={cols+2}
-            obstacleCoords={obstacles}
-            agentCoords={agents}
-            flagCoords={flags}
-            activePlayerTeam= {colorToID[gameRoomRef.current][socketId]}
-            fullVisible = {visibility}
+            grid = {grid}
+            agents = {agents}
+            fullVis = {visibility}
+            activeAgentIds = {colorToID[gameRoomRef.current][socketId]}
+            activeColors = {color[gameRoomRef.current][socketId]}
           />
         }       
-        {agents.map(agent => {
-          const agentImg = agentImages[agent.color];
-          const visible = isVisible(agent)
-          if (visible){
-            return (
-              <Agent
-                key={agent.id}
-                id={agent.id}
-                src={agentImg} // now this is dynamic based on the color of the agent
-                position={{
-                  top: `${middleY - (rows/2 * 40) + 40 * agent.row + 25}px`,
-                  left: `${middleX - (cols/2 * 40) + 40 * agent.col + 20}px`
-                }}
-                direction={getAngle(agent.direction)}
-              />
-            );
-          }
-        })}
       </div>
     );
   }

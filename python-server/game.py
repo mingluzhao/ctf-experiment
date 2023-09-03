@@ -3,53 +3,65 @@ import os
 import json 
 from constants import *
 import copy
+from datetime import datetime
+
         
 class Game:     
     #reset: reset the state to a optionally specified state
 
-    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round, full_visible, save_toggle, random_obstacle):
+    def __init__(self, action_cost, goal_reward, init_dict, max_steps, max_round, full_visible, save_toggle, obstacle_maps):
         # state dictionary : agent, obstacle, flag -> list of coordinates 
-        if random_obstacle:
+        self.obstacle_maps = obstacle_maps
+        self.obstacle_counter = 0
+
+        if not obstacle_maps:
             init_dict['obstacle'] = self.generate_obstacles(num_obstacles)
+        else:
+            init_dict['obstacle'] = self.obstacle_maps[self.obstacle_counter]
+
         self.init_dict = copy.deepcopy(init_dict)
         self.state_dict = copy.deepcopy(init_dict)
         self.action_cost = action_cost # cost of an action (constant)
         self.goal_reward = goal_reward # reward for reaching the goal (constant)
+        
+        self.full_visible = full_visible
+        self.save_toggle = save_toggle
 
         self.max_steps = max_steps
         self.max_round = max_round
         self.steps = 0
         self.round = 1
-        self.save_toggle = save_toggle
 
         self.agent_trajectories = [{0: [], 1: [], 2: [], 3: []}] * self.max_round
 
-        self.fill_visible = full_visible
-
-        self.grid = [['_' for _ in range(grid_size)] for _ in range(grid_size)]
-        
-        for item_type in init_dict:
-            for item in init_dict[item_type]:
-                if item_type == 'agent':
-                    self.grid[item['row']][item['col']] = 'a' + item['color'][0]
-                elif item_type == 'flag':
-                    self.grid[item['row']][item['col']] = 'f' + item['color'][0]
-                elif item_type == 'obstacle':
-                    self.grid[item['row']][item['col']] = 'o'
+        self.update_arena()
     
-    def update_grid(self):
-        self.grid = [['_' for _ in range(10)] for _ in range(10)]
-        for item_type in self.state_dict:
-            for item in self.state_dict[item_type]:
-                if item_type == 'agent':
-                    self.grid[item['row']][item['col']] = 'a' + item['color'][0]
-                elif item_type == 'flag':
-                    self.grid[item['row']][item['col']] = 'f' + item['color'][0]
-                elif item_type == 'obstacle':
-                    self.grid[item['row']][item['col']] = 'o'
+    def update_arena(self):
+        self.grid = [[['e'] for _ in range(10)] for _ in range(10)]
+        for item in self.state_dict['obstacle']:
+            self.grid[item['row']][item['col']] = ['o']
+        for item in self.state_dict['flag_base']:
+            self.grid[item['row']][item['col']] = ['b', item]
+        self.grid = self.padGrid()
+        
+    def padGrid(self):
+        # Get the dimensions of the input grid
+        rows = len(self.grid)
+        cols = len(self.grid[0]) if rows > 0 else 0
+        
+        # Initialize a new 2D array with dimensions (rows+2) x (cols+2)
+        # Fill it with 'x' initially
+        padded_grid = [[['x'] for _ in range(cols + 2)] for _ in range(rows + 2)]
+        
+        # Copy the original grid into the new grid, starting from index (1,1)
+        for i in range(rows):
+            for j in range(cols):
+                padded_grid[i + 1][j + 1] = self.grid[i][j]
+                
+        return padded_grid
     
     def observe(self, agent):
-        view = [['x' for _ in range(3)] for _ in range(3)]
+        view = [[['x'] for _ in range(3)] for _ in range(3)]
         direction = agent['direction']
         row, col = agent['row'], agent['col']
 
@@ -129,7 +141,8 @@ class Game:
         for agent, new_row, new_col in new_positions:
             self.move(agent, new_row, new_col)
         
-        self.update_grid()
+        self.check_flags()
+        self.update_arena()
         self.steps += 1
 
         rewards = self.reward()
@@ -168,20 +181,23 @@ class Game:
         rewards = []
         for agent in self.state_dict['agent']:
             agent_reward = self.action_cost
-            for flag in self.state_dict['flag']:
+            for flag in self.state_dict['flag_base']:
                 if agent['row'] == flag['row'] and agent['col'] == flag['col'] and agent['color'] != flag['color']:
                     agent_reward = self.goal_reward
             rewards.append(agent_reward)
         return rewards
                                                 # otherwise, for now return default action cost
     
+    def check_flags(self):
+        for agent in self.state_dict['agent']:
+            for base in self.state_dict['flag_base']:
+                if agent['row'] == base['row'] and agent['col'] == base['col'] and agent['color'] != base['color'] and base['hasflag']:
+                    agent['hasflag'] = True
+                    base['hasflag'] = False
+
     def is_terminal(self):
         if self.steps == self.max_steps:
             return True
-        for agent in self.state_dict['agent']:
-            for flag in self.state_dict['flag']:
-                if agent['row'] == flag['row'] and agent['col'] == flag['col'] and agent['color'] != flag['color']:
-                    return True
         return False
     
     def is_final_terminal(self):
@@ -190,7 +206,7 @@ class Game:
         return False
     
     def is_full_visible(self):
-        return self.fill_visible
+        return self.full_visible
     
     def save_on(self):
         return self.save_toggle
@@ -198,6 +214,11 @@ class Game:
     def reset(self):
         self.round += 1
         self.steps = 0
+        if self.obstacle_maps:
+            self.obstacle_counter = (self.obstacle_counter + 1) % len(self.obstacle_maps)
+            self.init_dict['obstacle'] = self.obstacle_maps[self.obstacle_counter]
+        else:
+            self.init_dict['obstacle'] = self.generate_obstacles(num_obstacles)
         self.state_dict = copy.deepcopy(self.init_dict)
     
     def save(self, roomID):
@@ -208,7 +229,13 @@ class Game:
 
         for round_data in self.agent_trajectories:
             for id in round_data:
-                file_name = str(roomID) + '_0' + str(id) + '.json'
+                now = datetime.now()
+                date_prefix = str(now.year) + '_' + str(now.month).zfill(2) + str(now.day).zfill(2)
+                hour_str = str(now.hour).zfill(2)
+                minute_str = str(now.minute).zfill(2)
+                time_prefix = hour_str + minute_str
+
+                file_name = date_prefix + '_' + time_prefix + '_' + str(roomID) + '_0' + str(id) + '.json'
                 file_path = os.path.join(data_directory_path, file_name)
                 with open(file_path, "w") as outfile:
                     json.dump(round_data[id], outfile)
@@ -264,8 +291,14 @@ def run(num_episodes, max_steps):
 
 
 def main():
-    traj_list = run(1, 5)
-    print(traj_list)
+    game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle, obstacle_maps)
+    print(game.obstacle_maps)
+    print(game.state_dict['obstacle'])
+    game.reset()
+    # print(game.grid)
+    # print(game.observe(game.state_dict['agent'][0]))
+    game.transition(['forward', None, None, None])
+    # print(game.grid)
 
 if __name__ == '__main__':
     main()

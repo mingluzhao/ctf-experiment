@@ -1,0 +1,10 @@
+.game-board {
+    display: grid;
+    gap: 0;
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    grid-gap: -1px;  /* Negative margin to offset the doubled-up border */
+  }

@@ -84,7 +84,7 @@ def create_room(sid, data):
     elif mode == 'four-player':
         maxclient = 4
 
-    game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle, random_obstacle)
+    game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle, obstacle_maps)
     print(game.agent_trajectories)
     gamestatus[roomID] = 'pending'
 
@@ -209,7 +209,7 @@ def game_loop(roomID):
         actions[roomID] = [None, None, None, None]
         
         # Broadcast updated state to all clients
-        sio.emit('updateState', json.dumps({'roomID': roomID, 'state': game.state_dict}),  room = roomID)
+        sio.emit('updateState', json.dumps({'roomID': roomID, 'grid': game.grid, 'agents': game.state_dict['agent']}),  room = roomID)
         
         # Check if the game is over, cleanup if so
         if game.is_terminal():
@@ -224,7 +224,7 @@ def game_loop(roomID):
             else:
                 game.reset()
         # Wait for 0.5 seconds (the collection period)
-        sio.sleep(0.5)
+        sio.sleep(step_time)
     
     # delete associated game
     del games[roomID]

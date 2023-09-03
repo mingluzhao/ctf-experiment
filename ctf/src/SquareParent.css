@@ -1,49 +1,34 @@
 .square {
-  width: 40px;
-  height: 40px;
-  background-color: #fff;
-  border: 1px solid #000;
-  border-width: 0.5px; /* set the border thickness to 0.5px */
-  padding: 0;
-  margin: 0;
-  z-index: 0;
-  box-sizing: border-box; /* include padding and border in the element's total width and height */
+  width: 50px;
+  height: 50px;
+  border: 1px solid black;
 }
 
-.obstacle {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 40px;
-  height: 40px;
-  background-color: #444444;
-  z-index: 1;
-  margin: 0; /* remove any margin */
-  padding: 0; /* remove any padding */
+.square-invisible {
+  width: 50px;
+  height: 50px;
+  border: 1px solid black;
+  background-color: grey;
 }
 
-.border {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 40px;
-  height: 40px;
-  background-color: #526f7b;
-  z-index: 2;
-  margin: 0; /* remove any margin */
-  padding: 0; /* remove any padding */
+.square img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.flag {
-  width: 40px;
-  height: 40px;
-  background-size: cover;
+.agent.north {
+  transform: rotate(0deg);
 }
 
-.non-visible {
-  background-color: rgb(130, 130, 130);
+.agent.east {
+  transform: rotate(90deg);
+}
+
+.agent.south {
+  transform: rotate(180deg);
+}
+
+.agent.west {
+  transform: rotate(-90deg);
 }

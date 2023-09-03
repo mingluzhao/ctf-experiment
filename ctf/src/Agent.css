@@ -1,0 +1,21 @@
+.agent.north {
+    transform: rotate(0deg);
+  }
+  
+  .agent.east {
+    transform: rotate(90deg);
+  }
+  
+  .agent.south {
+    transform: rotate(180deg);
+  }
+  
+  .agent.west {
+    transform: rotate(-90deg);
+  }
+  
+  .agent {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+  }
