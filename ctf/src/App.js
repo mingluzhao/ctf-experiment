@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import GameBoard from './GameBoard';
-import Agent from './Agent';
 import { io } from 'socket.io-client';
 
-//determines agent image
 
 const socket = io('http://128.97.30.83:8080');
 //const socket = io('http://localhost:8080');
@@ -29,7 +27,7 @@ const socket = io('http://128.97.30.83:8080');
   useEffect(() => {
     // handle room creation
     socket.on('room_created', (data) => {
-      onStart(mode, data.roomID, data.fullVis);
+      onStart(mode, data.roomID);
       setWaitingForPlayers(true);
     });
     // handle room join confirmation
@@ -92,11 +90,10 @@ const socket = io('http://128.97.30.83:8080');
   const gameRoomRef = useRef(null);
 
   // =======BUTTON FUNCTIONS=======
-  const startGame = (mode, roomID, fullVis) => {
+  const startGame = (mode, roomID) => {
     setGameMode(mode);
     setGameRoom(roomID);
     setGameStarted(false);
-    setVisibility(fullVis)
   }
   
   const joinGame = (mode, roomID) => {
@@ -133,6 +130,10 @@ const socket = io('http://128.97.30.83:8080');
     console.log('colortoid', colorToID);
   }, [colorToID]);
 
+  useEffect(() => {
+    console.log('visibility', visibility);
+  }, [visibility]);
+
   // various socket events 
   useEffect(() => {
     socket.on('client_ids', (data) => {
@@ -142,6 +143,10 @@ const socket = io('http://128.97.30.83:8080');
     socket.on('color-assign', (data)=> {
       setColor(data)
     });
+
+    socket.on('vis-assign', (data) => {
+      setVisibility(data)
+    })
 
     socket.on('start-game', () => {
       console.log('Game has started');

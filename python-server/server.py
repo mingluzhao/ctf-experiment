@@ -19,9 +19,6 @@ client_to_color = {}
 client_to_agent = {}
 actions = {}
 
-clients = []
-
-
 @sio.event
 def connect(sid, environ):
      print(f"Client {sid} connected.")
@@ -85,14 +82,13 @@ def create_room(sid, data):
         maxclient = 4
 
     game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle, obstacle_maps)
-    print(game.agent_trajectories)
     gamestatus[roomID] = 'pending'
 
     games[roomID] = game, maxclient
     actions[roomID] = [None, None, None, None]
 
     print("created room with ID ", roomID)
-    sio.emit('room_created', {'roomID': roomID, 'fullVis': game.is_full_visible()},  room=sid)
+    sio.emit('room_created', {'roomID': roomID},  room=sid)
 
     if mode == 'random':
         client_to_color[roomID] = {}
@@ -103,6 +99,7 @@ def create_room(sid, data):
 
         sio.emit('color-assign', client_to_color) # Emit start-game to the room
         sio.emit('client_ids', client_to_agent)
+        sio.emit('vis-assign', game.is_full_visible())
 
         sio.emit('start-game', room=roomID) # Emit start-game to the room
         gamestatus[roomID] = 'running'
@@ -141,8 +138,10 @@ def join_room(sid, data):
         print('client controlling agent: ', len(room_to_client[roomID]))
 
         client_to_color[roomID][sid] = ['red'] if len(room_to_client[roomID]) == 1 else ['blue']
-        sio.emit('color-assign', client_to_color) # Emit start-game to the room
+
+        sio.emit('color-assign', client_to_color)
         sio.emit('client_ids', client_to_agent)
+        sio.emit('vis-assign', games[roomID][0].is_full_visible())
 
         client_to_room[sid] = roomID
         room_to_client[roomID].append(sid)
@@ -252,5 +251,5 @@ def game_loop(roomID):
     print("gamestatus: ", gamestatus)
 
 if __name__ == '__main__':
-    #eventlet.wsgi.server(eventlet.listen(('', 8080)), app)
+    # eventlet.wsgi.server(eventlet.listen(('', 8080)), app)  
     eventlet.wsgi.server(eventlet.listen(('128.97.30.83', 8080)), app)

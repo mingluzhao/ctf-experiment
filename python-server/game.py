@@ -60,6 +60,15 @@ class Game:
                 
         return padded_grid
     
+    def grid_state(self):
+        full_arena = self.padGrid()
+        for agent in self.state_dict['agent']:
+            r, c = agent['row'], agent['col']
+            full_arena[r + 1][c + 1] = agent['color'][0] + 'a'
+        
+        return full_arena
+            
+    
     def observe(self, agent):
         view = [[['x'] for _ in range(3)] for _ in range(3)]
         direction = agent['direction']
@@ -97,29 +106,26 @@ class Game:
         return obstacles
             
     def find_by_position(self, row, col):
-        for items in self.state_dict.values():
+        objects = []
+        for type, items in self.state_dict.items():
             for item in items:
                 if item['row'] == row and item['col'] == col:
-                    return item
-        return None
+                    objects.append((type, item))
+        return objects
 
     def move(self, agent, row, col):
         if row < 0 or row > 9 or col < 0 or col > 9:  # Agent cannot move outside the grid
             return False
-        occupied = self.find_by_position(row, col)
-        if occupied:
-            if occupied['id'] == agent['id']:  # if agent moved to the same spot
+        objects = self.find_by_position(row, col)
+        for type, obj in objects:
+            if type == 'obstacle': # if spot occupied by obstacle, return False
                 return False
-            elif 'direction' in occupied:  # if spot is occupied by another agent
-                return False
-            elif occupied['id'][0] == 'f': # if spot occupied by flag, continue
+            else:  # if spot has agent or flag
                 pass
-            else:  # if spot is occupied by an obstacle
-                return False
         agent['row'] = row
         agent['col'] = col
         return True
-    
+        
     def transition(self, actions):
         original_state = copy.deepcopy(self.state_dict)
         new_positions = []
@@ -192,7 +198,7 @@ class Game:
         for agent in self.state_dict['agent']:
             for base in self.state_dict['flag_base']:
                 if agent['row'] == base['row'] and agent['col'] == base['col'] and agent['color'] != base['color'] and base['hasflag']:
-                    agent['hasflag'] = True
+                    agent['flagStatus'] = base['color']
                     base['hasflag'] = False
 
     def is_terminal(self):
@@ -227,18 +233,23 @@ class Game:
         if not os.path.exists(data_directory_path):
             os.makedirs(data_directory_path)
 
+        now = datetime.now()
+        date_prefix = str(now.year) + '_' + str(now.month).zfill(2) + str(now.day).zfill(2)
+        hour_str = str(now.hour).zfill(2)
+        minute_str = str(now.minute).zfill(2)
+        time_prefix = hour_str + minute_str
+
+        trajectories =[[] for _ in range(4)]
+
         for round_data in self.agent_trajectories:
             for id in round_data:
-                now = datetime.now()
-                date_prefix = str(now.year) + '_' + str(now.month).zfill(2) + str(now.day).zfill(2)
-                hour_str = str(now.hour).zfill(2)
-                minute_str = str(now.minute).zfill(2)
-                time_prefix = hour_str + minute_str
-
-                file_name = date_prefix + '_' + time_prefix + '_' + str(roomID) + '_0' + str(id) + '.json'
-                file_path = os.path.join(data_directory_path, file_name)
-                with open(file_path, "w") as outfile:
-                    json.dump(round_data[id], outfile)
+                trajectories[id].append(round_data[id])
+        
+        for id in range(0, 4):
+            file_name = date_prefix + '_' + time_prefix + '_' + str(roomID) + '_0' + str(id) + '.json'
+            file_path = os.path.join(data_directory_path, file_name)
+            with open(file_path, "w") as outfile:
+                json.dump(trajectories[id], outfile)
         
     
 # choose a random move from the possible moves (up, down, left, right, stay)

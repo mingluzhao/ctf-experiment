@@ -4,7 +4,7 @@ import Agent from './Agent';
 import './GameBoard.css';
 
 const GameBoard = ({ grid, agents, fullVis, activeAgentIds, activeColors}) => {
-
+  console.log(fullVis)
   const isVisible = (row, col) => {
 
     const adjustedRow = row - 1;

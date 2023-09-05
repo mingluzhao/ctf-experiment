@@ -4,10 +4,10 @@ possible_moves = ["forward", "backward", "turn_r", "turn_l"]
 move_map = {'forward': 0, 'right': 1, 'backward': 2, 'left': 3}
 
 # ADJUSTABLE PARAMETERS
-save_toggle = False
-max_steps = 10
-max_round = 6
-full_visible = False
+save_toggle = True
+max_steps = 3
+max_round = 2
+full_visible = True
 num_obstacles = 8
 step_time = 0.5
 
@@ -19,7 +19,7 @@ init_state = {
                     "col": 0,
                     "color": "red",
                     "direction": 1,
-                    "hasflag": False
+                    "flagStatus": None
                 },
                 {
                     "id": 1,
@@ -27,7 +27,7 @@ init_state = {
                     "col": 9,
                     "color": "red",
                     "direction": 3,
-                    "hasflag": False
+                    "flagStatus": None
                 },
                 {
                     "id": 2,
@@ -35,7 +35,7 @@ init_state = {
                     "col": 0,
                     "color": "blue",
                     "direction": 1,
-                    "hasflag": False
+                    "flagStatus": None
                 },
                 {
                     "id": 3,
@@ -43,7 +43,7 @@ init_state = {
                     "col": 9,
                     "color": "blue",
                     "direction": 3,
-                    "hasflag": False
+                    "flagStatus": None
                 }
             ],
             "obstacle": [],
