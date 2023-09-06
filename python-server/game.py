@@ -61,13 +61,12 @@ class Game:
         return padded_grid
     
     def grid_state(self):
-        full_arena = self.padGrid()
+        full_arena = copy.deepcopy(self.grid)
         for agent in self.state_dict['agent']:
             r, c = agent['row'], agent['col']
-            full_arena[r + 1][c + 1] = agent['color'][0] + 'a'
+            full_arena[r + 1][c + 1] = ['a', agent]
         
         return full_arena
-            
     
     def observe(self, agent):
         view = [[['x'] for _ in range(3)] for _ in range(3)]
@@ -78,6 +77,8 @@ class Game:
         offsets = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
         dx, dy = offsets[direction]
 
+        grid = self.grid_state()
+        print(grid)
         # Start from the square in front of the agent
         for i in range(3):
             for j in range(3):
@@ -86,7 +87,7 @@ class Game:
                 
                 # Check if coordinates are inside the grid
                 if 0 <= x < 10 and 0 <= y < 10:
-                    view[i][j] = self.grid[x][y]
+                    view[i][j] = grid[x][y]
                     
         return view
 
@@ -195,11 +196,27 @@ class Game:
                                                 # otherwise, for now return default action cost
     
     def check_flags(self):
-        for agent in self.state_dict['agent']:
-            for base in self.state_dict['flag_base']:
+        agents, bases = self.state_dict['agent'], self.state_dict['flag_base']
+
+        for agent in agents:
+            for base in bases:
                 if agent['row'] == base['row'] and agent['col'] == base['col'] and agent['color'] != base['color'] and base['hasflag']:
                     agent['flagStatus'] = base['color']
                     base['hasflag'] = False
+
+        for i in range(len(agents)):
+            for j in range(i + 1, len(agents)):
+                agent1 = agents[i]
+                agent2 = agents[j]
+
+                if agent1['row'] == agent2['row'] and agent1['col'] == agent2['col']:
+                    if agent1['color'] != agent2['color']:
+                        if agent1['flagStatus'] and not agent2['flagStatus']:
+                            agent2['flagStatus'] = agent1['flagStatus']
+                            agent1['flagStatus'] = None
+                        elif agent2['flagStatus'] and not agent1['flagStatus']:
+                            agent1['flagStatus'] = agent2['flagStatus']
+                            agent2['flagStatus'] = None
 
     def is_terminal(self):
         if self.steps == self.max_steps:
@@ -303,13 +320,7 @@ def run(num_episodes, max_steps):
 
 def main():
     game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle, obstacle_maps)
-    print(game.obstacle_maps)
-    print(game.state_dict['obstacle'])
-    game.reset()
-    # print(game.grid)
-    # print(game.observe(game.state_dict['agent'][0]))
-    game.transition(['forward', None, None, None])
-    # print(game.grid)
+    print(game.observe(game.state_dict['agent'][1]))
 
 if __name__ == '__main__':
     main()

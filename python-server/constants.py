@@ -4,9 +4,9 @@ possible_moves = ["forward", "backward", "turn_r", "turn_l"]
 move_map = {'forward': 0, 'right': 1, 'backward': 2, 'left': 3}
 
 # ADJUSTABLE PARAMETERS
-save_toggle = True
-max_steps = 3
-max_round = 2
+save_toggle = False
+max_steps = 200
+max_round = 1
 full_visible = True
 num_obstacles = 8
 step_time = 0.5
