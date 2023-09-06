@@ -67,18 +67,18 @@ init_state = {
 
 obstacle_maps = [[{
                     "id": "o1",
-                    "row": 2,
-                    "col": 2
+                    "row": 0,
+                    "col": 1
                 },
                 {
                     "id": "o2",
-                    "row": 2,
-                    "col": 7
+                    "row": 1,
+                    "col": 1
                 },
                 {
                     "id": "o3",
-                    "row": 7,
-                    "col": 2
+                    "row": 2,
+                    "col": 1
                 },
                 {
                     "id": "o4",
