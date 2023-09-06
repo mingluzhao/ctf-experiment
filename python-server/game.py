@@ -251,6 +251,13 @@ class Game:
     def is_terminal(self):
         if self.steps == self.max_steps:
             return True
+
+        agents, bases = self.state_dict['agent'], self.state_dict['flag_base']
+        for agent in agents:
+            for base in bases:
+                if agent['row'] == base['row'] and agent['col'] == base['col'] and agent['color'] == base['color'] and agent['flagStatus'] and agent['flagStatus'] != base['color']:
+                    return True
+        
         return False
     
     def is_final_terminal(self):
