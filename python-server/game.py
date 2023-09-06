@@ -69,26 +69,56 @@ class Game:
         return full_arena
     
     def observe(self, agent):
-        view = [[['x'] for _ in range(3)] for _ in range(3)]
+        view = [[['-'] for _ in range(3)] for _ in range(3)]
         direction = agent['direction']
-        row, col = agent['row'], agent['col']
-
-        # Calculate the offsets based on the direction the agent is facing
-        offsets = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # Up, Right, Down, Left
-        dx, dy = offsets[direction]
+        row, col = agent['row'] + 1, agent['col'] + 1
 
         grid = self.grid_state()
-        print(grid)
-        # Start from the square in front of the agent
-        for i in range(3):
-            for j in range(3):
-                x = row + dx*(i-1)
-                y = col + dy*(j-1)
-                
-                # Check if coordinates are inside the grid
-                if 0 <= x < 10 and 0 <= y < 10:
-                    view[i][j] = grid[x][y]
-                    
+
+        if direction == 0:
+            for c in range(col - 1, col + 2):
+                blocked = False
+                for r in range(row - 1, row - 4, -1):
+                    if blocked or r < 0 or r > 9 or c < 0 or c > 9:
+                        break
+                    elif grid[r][c][0] == 'o':
+                        view[r - row + 3][c - col + 1] = grid[r][c]
+                        blocked = True
+                    else:
+                        view[r - row + 3][c - col + 1] = grid[r][c]
+        elif direction == 1:
+            for r in range(row - 1, row + 2):
+                blocked = False
+                for c in range(col + 1, col + 4):
+                    if blocked or r < 0 or r > 9 or c < 0 or c > 9:
+                        break
+                    elif grid[r][c][0] == 'o':
+                        view[r - row + 1][c - col - 1] = grid[r][c]
+                        blocked = True
+                    else:
+                        view[r - row + 1][c - col - 1] = grid[r][c]
+        elif direction == 2:
+            for c in range(col - 1, col + 2):
+                blocked = False
+                for r in range(row + 1, row + 4):
+                    if blocked or r < 0 or r > 9 or c < 0 or c > 9:
+                        break
+                    elif grid[r][c][0] == 'o':
+                        view[r - row - 1][c - col + 1] = grid[r][c]
+                        blocked = True
+                    else:
+                        view[r - row - 1][c - col + 1] = grid[r][c]
+        elif direction == 3:
+            for r in range(row - 1, row + 2):
+                blocked = False
+                for c in range(col - 1, col - 4, -1):
+                    if blocked or r < 0 or r > 9 or c < 0 or c > 9:
+                        break
+                    elif grid[r][c][0] == 'o':
+                        view[r - row + 1][c - col + 3] = grid[r][c]
+                        blocked = True
+                    else:
+                        view[r - row + 1][c - col + 3] = grid[r][c]
         return view
 
     def generate_obstacles(self, num):
@@ -221,6 +251,13 @@ class Game:
     def is_terminal(self):
         if self.steps == self.max_steps:
             return True
+
+        agents, bases = self.state_dict['agent'], self.state_dict['flag_base']
+        for agent in agents:
+            for base in bases:
+                if agent['row'] == base['row'] and agent['col'] == base['col'] and agent['color'] == base['color'] and agent['flagStatus'] and agent['flagStatus'] != base['color']:
+                    return True
+        
         return False
     
     def is_final_terminal(self):
@@ -320,7 +357,7 @@ def run(num_episodes, max_steps):
 
 def main():
     game = Game(-1, 10, init_state, max_steps, max_round, full_visible, save_toggle, obstacle_maps)
-    print(game.observe(game.state_dict['agent'][1]))
+    print(game.observe(game.state_dict['agent'][0]))
 
 if __name__ == '__main__':
     main()
