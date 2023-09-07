@@ -5,45 +5,46 @@ move_map = {'forward': 0, 'right': 1, 'backward': 2, 'left': 3}
 
 # ADJUSTABLE PARAMETERS
 save_toggle = True
-max_steps = 50
-max_round = 2
+max_steps = 60
+max_round = 12
 full_visible = True
 num_obstacles = 8 # if randomly generated
-step_time = 1
+step_time = 2
 
-obstacles_list = [[(2, 2), (2, 7), (7, 2), (7, 7)],
-                  [(2, 2), (3, 6), (7, 2), (7, 7)]
+obstacles_list = [[(7, 3), (7, 4), (7, 5), (7, 6), (7, 7)],
+                  [(7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (3, 3), (4, 3), (5, 3)],
+                  [(7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (3, 3), (4, 3), (5, 3), (5, 4), (5, 5)]
                   ]
 
 init_state = {
             "agent": [
                 {
                     "id": 0,
-                    "row": 0,
-                    "col": 0,
+                    "row": 3,
+                    "col": 1,
                     "color": "red",
                     "direction": 1,
                     "flagStatus": None
                 },
                 {
                     "id": 1,
-                    "row": 0,
-                    "col": 9,
+                    "row": 4,
+                    "col": 8,
                     "color": "red",
                     "direction": 3,
                     "flagStatus": None
                 },
                 {
                     "id": 2,
-                    "row": 9,
-                    "col": 0,
+                    "row": 6,
+                    "col": 5,
                     "color": "blue",
                     "direction": 1,
                     "flagStatus": None
                 },
                 {
                     "id": 3,
-                    "row": 9,
+                    "row": 0,
                     "col": 9,
                     "color": "blue",
                     "direction": 3,
@@ -62,7 +63,7 @@ init_state = {
                 {
                     "id": "f2",
                     "color": "blue",
-                    "row": 9,
+                    "row": 8,
                     "col": 5,
                     "hasflag": True
                 },
